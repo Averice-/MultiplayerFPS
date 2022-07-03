@@ -27,7 +27,7 @@ namespace ShardStudios {
 
         public Vector3 velocity {
             get => _velocity;
-            private set {
+            set {
                 _velocity = value;
             }
         }

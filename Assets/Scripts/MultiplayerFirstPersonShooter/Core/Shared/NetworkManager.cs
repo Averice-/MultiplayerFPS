@@ -20,7 +20,12 @@ namespace ShardStudios {
         GameServerAddPlayer,
         GameServerSubPlayer,
         UserRequestQuickServer,
-        NetworkedEntitySpawned
+        NetworkedEntitySpawned,
+        UpdateTick,
+        ClientSendInput,
+        ReceiveSimulationState,
+        PlayerJoined,
+        PlayerReady
     }
 
     public class NetworkManager : MonoBehaviour
@@ -43,6 +48,8 @@ namespace ShardStudios {
         
         public static MasterConnection MasterConnection = new MasterConnection();
         public RegionID region = RegionID.AU;
+
+        public static uint tick = 0;
 
         #if SERVER
             public static GameServer GameServer = new GameServer();
@@ -84,8 +91,20 @@ namespace ShardStudios {
 
         }
 
+        void FixedUpdate(){
+
+            tick++;
+
+            #if SERVER
+                if( tick % 132 == 0){
+                    SendTick();
+                }
+            #endif
+
+        }
 
         void Update(){
+
 
             #if SERVER
                 GameServer.Tick();
@@ -95,6 +114,20 @@ namespace ShardStudios {
             MasterConnection.Tick();
 
         }
+
+        #if SERVER
+            private static void SendTick(){
+                Message message = Message.Create(MessageSendMode.unreliable, MessageID.UpdateTick);
+                message.AddUInt(tick);
+
+                GameServer.Server.SendToAll(message);
+            }
+        #else
+            [MessageHandler((ushort)MessageID.UpdateTick)]
+            private static void UpdateTick(Message message){
+                tick = message.GetUInt();
+            }
+        #endif
 
         private void OnApplicationQuit(){
 

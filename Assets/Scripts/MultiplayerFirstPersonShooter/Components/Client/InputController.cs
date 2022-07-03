@@ -8,9 +8,26 @@ namespace ShardStudios {
     public class InputController : MonoBehaviour
     {   
 
+        private static InputController _instance;
+        public static InputController Instance {
+            get => _instance;
+            private set {
+                if( _instance == null )
+                    _instance = value;
+                else if ( _instance != value ){
+                    Debug.Log($"{nameof(InputController)} instance already exists, destroying duplicate!");
+                    Destroy(value);
+                }
+            }
+        }
+
         private DefaultActions defaultActions;
 
         private bool isJumpingThisFrame = false;
+
+        void Awake(){
+            Instance = this;
+        }
 
         void Start(){
             defaultActions = new DefaultActions();

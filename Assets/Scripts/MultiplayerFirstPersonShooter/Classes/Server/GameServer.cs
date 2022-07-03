@@ -56,6 +56,8 @@ namespace ShardStudios {
         public void ServerPlayerConnected(object sender, ServerClientConnectedEventArgs e){
             Message message = Message.Create(MessageSendMode.reliable, MessageID.GameServerAddPlayer);
             MasterServer.Send(message);
+
+            new Player(e.Client.Id); // TEMPORARY
         }
 
         public void ServerPlayerDisconnected(object sender, ClientDisconnectedEventArgs e){

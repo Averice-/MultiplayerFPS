@@ -33,7 +33,13 @@ namespace ShardStudios {
         public string resourceName { get; private set; }
         public ushort ownerId { get; private set; }
 
+        public uint lastSimulatedTick = 0;
+
+        public MovementController movementController;
+
         #if SERVER
+
+            
 
             public static GameObject Create(string entityName, Vector3 position, Quaternion rotation, ushort ownerId = 0){
                     
@@ -50,6 +56,7 @@ namespace ShardStudios {
                 networkedEntity.id = autoIncrementId;
                 networkedEntity.resourceName = entityName;
                 networkedEntity.ownerId = ownerId;
+                networkedEntity.movementController = networkedEntity.GetComponent<MovementController>();
 
                 Message spawnEntityMessage = Message.Create(MessageSendMode.reliable, MessageID.NetworkedEntitySpawned);
                 spawnEntityMessage.AddUInt(autoIncrementId);
@@ -67,7 +74,8 @@ namespace ShardStudios {
                 return newEntity;
      
             }
-
+            
+            
         #else
 
             [MessageHandler((ushort)MessageID.NetworkedEntitySpawned)]
@@ -81,6 +89,7 @@ namespace ShardStudios {
                 networkedEntity.id = entityInfo.id;
                 networkedEntity.resourceName = entityInfo.resourceName;
                 networkedEntity.ownerId = entityInfo.ownerId;
+                networkedEntity.movementController = networkedEntity.GetComponent<MovementController>();
 
                 // OnSpawn event.
 
@@ -115,6 +124,14 @@ namespace ShardStudios {
             Entities.Remove(id);
             Destroy(this.gameObject);
         }
+
+        // broadcast already made entities.
+        // function to clear all networked entities.
+        // remove players that have left the game from networkedEntities and playerList;
+        // remove users that leave the master server
+        // remove players inputstates&simulationstates from simulatedobjecthandler.
+        // create gamemode class so you can get spawning players when ready finished for base gamemode.
+
         
     }
 

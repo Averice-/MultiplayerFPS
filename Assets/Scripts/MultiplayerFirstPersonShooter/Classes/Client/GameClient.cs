@@ -53,6 +53,9 @@ namespace ShardStudios {
             while( !loading.isDone ){
                 yield return null;
             }
+
+            Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerReady);
+            Client.Send(message);
         }
 
         public void Tick(){

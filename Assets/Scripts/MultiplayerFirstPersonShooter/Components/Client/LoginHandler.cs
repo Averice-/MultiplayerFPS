@@ -14,6 +14,7 @@ namespace ShardStudios {
         [SerializeField] Button connectButton;
 
         public void Connect(){
+            // Temporary
             NetworkManager.User.RequestQuickServer();
         }
     }
