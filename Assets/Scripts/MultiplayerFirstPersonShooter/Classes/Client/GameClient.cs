@@ -39,11 +39,13 @@ namespace ShardStudios {
             Client.Connect($"{NetworkManager.User.game_ip}:{NetworkManager.User.game_port}");
         }
 
-        public void PlayerDisconnected(object sender, EventArgs e){
+        public void PlayerDisconnected(object sender, DisconnectedEventArgs e){
             NetworkManager.User.Reset();
         }
 
-        public void OtherPlayerDisconnected(object sender, EventArgs e){
+        public void OtherPlayerDisconnected(object sender, ClientDisconnectedEventArgs e){
+            NetworkedEntity.CleanupPlayerOwnedEntities(e.Id);
+            Player.playerList.Remove(e.Id);
             Debug.Log("Other player disconnected!");
         }
 

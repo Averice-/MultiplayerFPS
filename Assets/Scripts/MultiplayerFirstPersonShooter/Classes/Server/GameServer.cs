@@ -63,6 +63,9 @@ namespace ShardStudios {
         public void ServerPlayerDisconnected(object sender, ClientDisconnectedEventArgs e){
             Message message = Message.Create(MessageSendMode.reliable, MessageID.GameServerSubPlayer);
             MasterServer.Send(message);
+
+            NetworkedEntity.CleanupPlayerOwnedEntities(e.Id);
+            Player.playerList.Remove(e.Id);
         }
 
         IEnumerator LoadMap(string mapname){

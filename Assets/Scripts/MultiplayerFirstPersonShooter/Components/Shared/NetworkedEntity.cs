@@ -116,6 +116,23 @@ namespace ShardStudios {
             return null;
         }
 
+        public static void CleanupPlayerOwnedEntities(ushort id){
+            List<NetworkEntity> playerOwnedEntities = GetEntitiesOfOwner(id);
+            foreach( NetworkedEntity entity in playerOwnedEntities ){
+                entity.DestroyNetworkedEntity();
+                #if SERVER
+                    SimulatedObjectHandler.clientInputs.Remove(entity.id);
+                    SimulatedObjectHandler.simulationStates.Remove(entity.id);
+                #endif
+            }
+        }
+
+        public static void CleanupEntities(){
+            foreach( KeyValuePair<uint, NetworkedEntity> ent in Entities ){
+                ent.Value.DestroyNetworkedEntity();
+            }
+        }
+
         public virtual void OnSpawn(){
 
         }
@@ -126,10 +143,10 @@ namespace ShardStudios {
         }
 
         // broadcast already made entities.
-        // function to clear all networked entities.
-        // remove players that have left the game from networkedEntities and playerList;
+        // function to clear all networked entities. DONE
+        // remove players that have left the game from networkedEntities and playerList; DONE
         // remove users that leave the master server
-        // remove players inputstates&simulationstates from simulatedobjecthandler.
+        // remove players inputstates&simulationstates from simulatedobjecthandler. DONE
         // create gamemode class so you can get spawning players when ready finished for base gamemode.
 
         
