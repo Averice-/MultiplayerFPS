@@ -52,6 +52,8 @@ namespace ShardStudios {
                     return null;
                 }
 
+                Debug.Log($"[SERVER] Entity spawned at[{position}] arrived at[{newEntity.transform.position}]");
+
                 autoIncrementId++;
                 networkedEntity.id = autoIncrementId;
                 networkedEntity.resourceName = entityName;
@@ -73,6 +75,24 @@ namespace ShardStudios {
 
                 return newEntity;
      
+            }
+
+            public static void Broadcast(ushort to){
+                
+                Debug.Log($"Broadcasting active entities to player[{to}]");
+                foreach( KeyValuePair<uint, NetworkedEntity> entity in Entities ){
+
+                    Message message = Message.Create(MessageSendMode.reliable, MessageID.NetworkedEntitySpawned);
+                    message.AddUInt(entity.Key);
+                    message.AddString(entity.Value.resourceName);
+                    message.AddVector3(entity.Value.transform.position);
+                    message.AddQuaternion(entity.Value.transform.rotation);
+                    message.AddUShort(entity.Value.ownerId);
+
+                    NetworkManager.GameServer.Server.Send(message, to);
+
+                }
+
             }
             
             

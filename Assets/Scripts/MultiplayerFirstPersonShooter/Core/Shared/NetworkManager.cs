@@ -25,7 +25,8 @@ namespace ShardStudios {
         ClientSendInput,
         ReceiveSimulationState,
         PlayerJoined,
-        PlayerReady
+        PlayerReady,
+        ReceiveOwnSimulationState
     }
 
     public class NetworkManager : MonoBehaviour
@@ -96,9 +97,11 @@ namespace ShardStudios {
             tick++;
 
             #if SERVER
-                if( tick % 132 == 0){
+
+                if( tick % 33 == 0){
                     SendTick();
                 }
+
             #endif
 
         }

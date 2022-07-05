@@ -64,6 +64,8 @@ namespace ShardStudios {
             Message message = Message.Create(MessageSendMode.reliable, MessageID.GameServerSubPlayer);
             MasterServer.Send(message);
 
+            Debug.Log($"Cleaning up after player[{e.Id}]");
+
             NetworkedEntity.CleanupPlayerOwnedEntities(e.Id);
             Player.playerList.Remove(e.Id);
         }

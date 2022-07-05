@@ -71,6 +71,7 @@ namespace ShardStudios {
 
             [MessageHandler((ushort)MessageID.PlayerReady)]
             public static void PlayerReady(ushort from, Message message){
+                NetworkedEntity.Broadcast(from);
                 playerList[from].Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
             }
 

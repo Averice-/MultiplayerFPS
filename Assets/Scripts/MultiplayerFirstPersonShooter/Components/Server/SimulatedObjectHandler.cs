@@ -10,7 +10,7 @@ namespace ShardStudios {
         
         #if SERVER
 
-            private const int CACHE_SIZE = 1024;
+            private const int CACHE_SIZE = 132; // 2 seconds worth of states.
 
             public static Dictionary<uint, Queue<InputState>> clientInputs = new Dictionary<uint, Queue<InputState>>();
             public static Dictionary<uint, SimulationState[]> simulationStates = new Dictionary<uint, SimulationState[]>();
@@ -25,7 +25,7 @@ namespace ShardStudios {
                     Queue<InputState> queue = inputs.Value;
                     InputState inputState;
 
-                    while( queue.Count > 0 ){
+                    if( queue.Count > 0 ){
 
                         inputState = queue.Dequeue();
 
@@ -38,19 +38,23 @@ namespace ShardStudios {
                             
                             movementController.transform.rotation = inputState.rotation;
                             movementController.AddForce(new Vector3( inputState.input.x, 0f, inputState.input.y).normalized);
-                            movementController.Move();
+                            //movementController.Move();
 
-                            SimulationState simulationState = new SimulationState {
-                                position = networkedEntity.transform.position,
-                                velocity = movementController.velocity,
-                                rotation = networkedEntity.transform.rotation,
-                                tick = inputState.tick
-                            };
+                            //Physics.SyncTransforms();
 
-                            simulationStates[inputs.Key][inputState.tick % CACHE_SIZE] = simulationState;
+                            UpdateOwnState(networkedEntity, inputState.tick);
 
                         }
                     }
+
+                    SimulationState simulationState = new SimulationState {
+                        position = networkedEntity.transform.position,
+                        velocity = movementController.velocity,
+                        rotation = networkedEntity.transform.rotation,
+                        tick = NetworkManager.tick
+                    };
+
+                    simulationStates[inputs.Key][NetworkManager.tick % CACHE_SIZE] = simulationState;
 
                 }
 
@@ -58,14 +62,29 @@ namespace ShardStudios {
                     UpdateSimulationStateAllPlayers();
                 }
 
+
             }
 
 
+            public void UpdateOwnState(NetworkedEntity networkedEntity, uint tick){
+
+                Message message = Message.Create(MessageSendMode.unreliable, MessageID.ReceiveOwnSimulationState);
+                message.AddUInt(networkedEntity.id);
+                message.AddVector3(networkedEntity.transform.position);
+                message.AddVector3(networkedEntity.movementController.velocity);
+                message.AddQuaternion(networkedEntity.transform.rotation);
+                message.AddUInt(tick);
+
+                NetworkManager.GameServer.Server.Send(message, networkedEntity.ownerId);
+            }
+
             // This could be better, revise in the future.
             public void UpdateSimulationStateAllPlayers(){
-
+                
                 foreach( KeyValuePair<uint, NetworkedEntity> entity in NetworkedEntity.Entities ){
+
                     if( entity.Value.lastSimulatedTick > 0 ){
+
                         Message message = Message.Create(MessageSendMode.unreliable, MessageID.ReceiveSimulationState);
                         message.AddUInt(entity.Key);
                         message.AddVector3(entity.Value.transform.position);
@@ -76,6 +95,7 @@ namespace ShardStudios {
                         NetworkManager.GameServer.Server.SendToAll(message);
 
                     }
+
                 }
 
             }

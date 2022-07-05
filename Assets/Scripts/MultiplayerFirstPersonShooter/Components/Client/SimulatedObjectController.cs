@@ -48,9 +48,9 @@ namespace ShardStudios {
             
             private static uint id;
             // interpolating settings.
-            private static float interpolationMultiplier = 0.55f;
-            private static float rotationMultiplier = 0.88f;
-            private static float snapThreshold = 0.5f;
+            private static float interpolationMultiplier = 0.35f;
+            private static float rotationMultiplier = 0.28f;
+            private static float snapThreshold = 0.2f;
 
             private static float toleranceMagnitude = snapThreshold * snapThreshold;
 
@@ -89,9 +89,38 @@ namespace ShardStudios {
             private static void ReceiveSimulationState(Message message){
 
                 uint entId = message.GetUInt();
+                if( NetworkedEntity.Entities.ContainsKey(entId) ){
+
+                    NetworkedEntity simulatedEntity = NetworkedEntity.Entities[entId];
+                    if( simulatedEntity != null ){
+                        
+                        if( entId != id ){
+
+                            SimulationState stateReceived = new SimulationState {
+                                position = message.GetVector3(),
+                                velocity = message.GetVector3(),
+                                rotation = message.GetQuaternion(),
+                                tick = message.GetUInt()
+                            };
+
+                            UpdateSimulatedPlayer(simulatedEntity, stateReceived);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            [MessageHandler((ushort)MessageID.ReceiveOwnSimulationState)]
+            private static void ReceiveOwnSimulationState(Message message){
+
+                uint entId = message.GetUInt();
                 NetworkedEntity simulatedEntity = NetworkedEntity.Entities[entId];
+
                 if( simulatedEntity != null ){
-                    
+
                     SimulationState stateReceived = new SimulationState {
                         position = message.GetVector3(),
                         velocity = message.GetVector3(),
@@ -99,18 +128,12 @@ namespace ShardStudios {
                         tick = message.GetUInt()
                     };
 
-                    if( entId == id ){
-                        if( activeServerState == null || activeServerState.tick < stateReceived.tick ){
-                            activeServerState = stateReceived;
-                            ServerRep.transform.position = stateReceived.position;
-                            ServerRep.transform.rotation = stateReceived.rotation;
-                        }
-                    }else{
-                        UpdateSimulatedPlayer(simulatedEntity, stateReceived);
+                    if( activeServerState == null || activeServerState.tick < stateReceived.tick ){
+                        activeServerState = stateReceived;
+                        ServerRep.transform.position = stateReceived.position;
+                        ServerRep.transform.rotation = stateReceived.rotation;
                     }
-
                 }
-
             }
 
             private static void UpdateSimulatedPlayer(NetworkedEntity entity, SimulationState state){
@@ -123,6 +146,8 @@ namespace ShardStudios {
                     entity.transform.rotation = Quaternion.Lerp(entity.transform.rotation, state.rotation, rotationMultiplier);
                     entity.movementController.velocity = state.velocity;
                     entity.lastSimulatedTick = state.tick;
+
+                    Physics.SyncTransforms();
 
                 }
 
@@ -196,18 +221,22 @@ namespace ShardStudios {
 
                     lastReconciledFrame = activeServerState.tick;
 
+                    Physics.SyncTransforms();
+
                     return;
 
                 }
 
-                float positionDifference = (activeServerState.position - cachedSimulationState.position).sqrMagnitude;
-                if(  positionDifference > toleranceMagnitude ){
+                float positionDifference = (activeServerState.position - cachedSimulationState.position).magnitude;
+                if(  positionDifference > snapThreshold ){
 
                     Debug.Log($"Out of sync, interpolating...[{positionDifference}]");
 
                     transform.position = Vector3.Lerp(cachedSimulationState.position, activeServerState.position, interpolationMultiplier);
                     movementController.velocity = activeServerState.velocity;
                     transform.rotation = Quaternion.Lerp(cachedSimulationState.rotation, activeServerState.rotation, rotationMultiplier);
+
+                    Physics.SyncTransforms();
 
                     uint rewindTick = activeServerState.tick;
 
@@ -227,7 +256,10 @@ namespace ShardStudios {
                         if( rewoundInputState.jumping == (byte)1 )
                             movementController.Jump();
 
+                        transform.rotation = rewoundInputState.rotation;
                         movementController.Move();
+
+                        Physics.SyncTransforms();
 
                         SimulationState resyncedSimulationState = GetSimulationState(rewoundInputState);
                         resyncedSimulationState.tick = rewindTick;
