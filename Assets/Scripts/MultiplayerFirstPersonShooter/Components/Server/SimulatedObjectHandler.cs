@@ -92,7 +92,7 @@ namespace ShardStudios {
                         message.AddQuaternion(entity.Value.transform.rotation);
                         message.AddUInt(NetworkManager.tick);
                         
-                        NetworkManager.GameServer.Server.SendToAll(message);
+                        NetworkManager.GameServer.Server.SendToAll(message, entity.Value.ownerId);
 
                     }
 
