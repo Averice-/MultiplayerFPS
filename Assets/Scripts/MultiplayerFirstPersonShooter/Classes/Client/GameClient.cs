@@ -39,7 +39,7 @@ namespace ShardStudios {
             Client.Connect($"{NetworkManager.User.game_ip}:{NetworkManager.User.game_port}");
         }
 
-        public void PlayerDisconnected(object sender, DisconnectedEventArgs e){
+        public void PlayerDisconnected(object sender, EventArgs e){
             NetworkManager.User.Reset();
         }
 

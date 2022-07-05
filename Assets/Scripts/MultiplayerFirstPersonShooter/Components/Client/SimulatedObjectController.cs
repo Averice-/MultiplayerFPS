@@ -31,6 +31,7 @@ namespace ShardStudios {
             MovementController movementController;
             CharacterController characterController;
             NetworkedEntity networkedEntity;
+            Player owner;
 
             private const int CACHE_SIZE = 1024;
             private SimulationState[] simulationStates = new SimulationState[CACHE_SIZE];
@@ -53,17 +54,22 @@ namespace ShardStudios {
 
             private static float toleranceMagnitude = snapThreshold * snapThreshold;
 
-
+            public static  GameObject ServerRep;
             void Start(){
                 inputController = InputController.Instance;
                 movementController = GetComponent<MovementController>();
                 networkedEntity = GetComponent<NetworkedEntity>();
-
+                owner = networkedEntity.GetOwner();
                 id = networkedEntity.id;
+
+                ServerRep = (GameObject)Instantiate(Resources.Load("ServerRepresentation"), transform.position, transform.rotation);
             }
 
 
             void Update(){
+                
+                if( owner?.isLocalPlayer == false )
+                    return;
 
                 moveAxis = inputController.GetMoveAxis();
                 lookAxis = inputController.GetLookAxis();
@@ -96,6 +102,8 @@ namespace ShardStudios {
                     if( entId == id ){
                         if( activeServerState == null || activeServerState.tick < stateReceived.tick ){
                             activeServerState = stateReceived;
+                            ServerRep.transform.position = stateReceived.position;
+                            ServerRep.transform.rotation = stateReceived.rotation;
                         }
                     }else{
                         UpdateSimulatedPlayer(simulatedEntity, stateReceived);
@@ -135,7 +143,7 @@ namespace ShardStudios {
 
             void FixedUpdate(){
 
-                if( activeInputState == null )
+                if( activeInputState == null || owner?.isLocalPlayer == false )
                     return;
 ;
                 activeInputState.tick = NetworkManager.tick;
@@ -192,9 +200,10 @@ namespace ShardStudios {
 
                 }
 
-                if( (activeServerState.position - cachedSimulationState.position).sqrMagnitude > toleranceMagnitude ){
+                float positionDifference = (activeServerState.position - cachedSimulationState.position).sqrMagnitude;
+                if(  positionDifference > toleranceMagnitude ){
 
-                    Debug.Log("Out of sync, interpolating..");
+                    Debug.Log($"Out of sync, interpolating...[{positionDifference}]");
 
                     transform.position = Vector3.Lerp(cachedSimulationState.position, activeServerState.position, interpolationMultiplier);
                     movementController.velocity = activeServerState.velocity;

@@ -90,7 +90,7 @@ namespace ShardStudios {
                 networkedEntity.resourceName = entityInfo.resourceName;
                 networkedEntity.ownerId = entityInfo.ownerId;
                 networkedEntity.movementController = networkedEntity.GetComponent<MovementController>();
-
+                Debug.Log($"Spawned at[{entityInfo.position}].. Arrived at[{networkedEntity.transform.position}]");
                 // OnSpawn event.
 
                 Entities.Add(entityInfo.id, networkedEntity);
@@ -117,7 +117,7 @@ namespace ShardStudios {
         }
 
         public static void CleanupPlayerOwnedEntities(ushort id){
-            List<NetworkEntity> playerOwnedEntities = GetEntitiesOfOwner(id);
+            List<NetworkedEntity> playerOwnedEntities = GetEntitiesOfOwner(id);
             foreach( NetworkedEntity entity in playerOwnedEntities ){
                 entity.DestroyNetworkedEntity();
                 #if SERVER
@@ -125,6 +125,13 @@ namespace ShardStudios {
                     SimulatedObjectHandler.simulationStates.Remove(entity.id);
                 #endif
             }
+        }
+
+        public Player GetOwner(){
+            if( Player.playerList.ContainsKey(ownerId) ){
+                return Player.playerList[ownerId];
+            }
+            return null;
         }
 
         public static void CleanupEntities(){

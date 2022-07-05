@@ -25,7 +25,7 @@ namespace ShardStudios {
                     Queue<InputState> queue = inputs.Value;
                     InputState inputState;
 
-                    if( queue.Count > 0 ){
+                    while( queue.Count > 0 ){
 
                         inputState = queue.Dequeue();
 
@@ -35,7 +35,10 @@ namespace ShardStudios {
                             if( inputState.jumping == (byte)1 ){
                                 movementController.Jump();
                             }
+                            
+                            movementController.transform.rotation = inputState.rotation;
                             movementController.AddForce(new Vector3( inputState.input.x, 0f, inputState.input.y).normalized);
+                            movementController.Move();
 
                             SimulationState simulationState = new SimulationState {
                                 position = networkedEntity.transform.position,

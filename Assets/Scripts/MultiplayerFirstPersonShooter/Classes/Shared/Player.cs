@@ -14,6 +14,8 @@ namespace ShardStudios {
         public GameObject playerObject;
         public string name;
 
+        public bool isLocalPlayer = false;
+
         public Player(ushort id, string name = "nigger"){
 
             this.id = id;
@@ -30,6 +32,12 @@ namespace ShardStudios {
                 NetworkManager.GameServer.Server.SendToAll(message);
 
                 //Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+
+            #else
+
+                if( NetworkManager.GameClient.Client.Id == id ){
+                    this.isLocalPlayer = true;
+                }
 
             #endif
 
@@ -54,7 +62,6 @@ namespace ShardStudios {
             }
 
             public void Spawn(Vector3 position, Quaternion rotation){
-                
                 playerObject = NetworkedEntity.Create("ClientPlayer", position, rotation, this.id);
             }
 
