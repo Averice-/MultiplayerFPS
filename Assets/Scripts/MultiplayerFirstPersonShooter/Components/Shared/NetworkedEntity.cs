@@ -33,15 +33,13 @@ namespace ShardStudios {
         public string resourceName { get; private set; }
         public ushort ownerId { get; private set; }
 
-        public uint lastSimulatedTick = 0;
-
-        public MovementController movementController;
+        public bool isNetworkedPlayer = false;
 
         #if SERVER
 
             
 
-            public static GameObject Create(string entityName, Vector3 position, Quaternion rotation, ushort ownerId = 0){
+            public static NetworkedEntity Create(string entityName, Vector3 position, Quaternion rotation, ushort ownerId = 0){
                     
                 GameObject newEntity = (GameObject)Instantiate(Resources.Load($"NetworkedEntities/{entityName}"), position, rotation);
                 NetworkedEntity networkedEntity = newEntity.GetComponent<NetworkedEntity>();
@@ -58,7 +56,7 @@ namespace ShardStudios {
                 networkedEntity.id = autoIncrementId;
                 networkedEntity.resourceName = entityName;
                 networkedEntity.ownerId = ownerId;
-                networkedEntity.movementController = networkedEntity.GetComponent<MovementController>();
+                //networkedEntity.movementController = networkedEntity.GetComponent<MovementController>();
 
                 Message spawnEntityMessage = Message.Create(MessageSendMode.reliable, MessageID.NetworkedEntitySpawned);
                 spawnEntityMessage.AddUInt(autoIncrementId);
@@ -69,11 +67,11 @@ namespace ShardStudios {
 
                 NetworkManager.GameServer.Server.SendToAll(spawnEntityMessage);
 
-                // OnSpawn event.
+                networkedEntity.OnSpawn();
 
                 Entities.Add(autoIncrementId, networkedEntity);
 
-                return newEntity;
+                return networkedEntity;
      
             }
 
@@ -109,9 +107,10 @@ namespace ShardStudios {
                 networkedEntity.id = entityInfo.id;
                 networkedEntity.resourceName = entityInfo.resourceName;
                 networkedEntity.ownerId = entityInfo.ownerId;
-                networkedEntity.movementController = networkedEntity.GetComponent<MovementController>();
+                //networkedEntity.movementController = networkedEntity.GetComponent<MovementController>();
                 Debug.Log($"Spawned at[{entityInfo.position}].. Arrived at[{networkedEntity.transform.position}]");
-                // OnSpawn event.
+                
+                networkedEntity.OnSpawn();
 
                 Entities.Add(entityInfo.id, networkedEntity);
 
@@ -161,7 +160,6 @@ namespace ShardStudios {
         }
 
         public virtual void OnSpawn(){
-
         }
 
         public void DestroyNetworkedEntity(){
@@ -169,10 +167,10 @@ namespace ShardStudios {
             Destroy(this.gameObject);
         }
 
-        // broadcast already made entities.
+        // broadcast already made entities. DONE
         // function to clear all networked entities. DONE
         // remove players that have left the game from networkedEntities and playerList; DONE
-        // remove users that leave the master server
+        // remove users that leave the master server DONE
         // remove players inputstates&simulationstates from simulatedobjecthandler. DONE
         // create gamemode class so you can get spawning players when ready finished for base gamemode.
 

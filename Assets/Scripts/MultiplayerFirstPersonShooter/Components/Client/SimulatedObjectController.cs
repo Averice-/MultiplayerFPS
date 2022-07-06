@@ -20,7 +20,7 @@ namespace ShardStudios {
     }
 
 
-    [RequireComponent(typeof(NetworkedEntity))]
+    [RequireComponent(typeof(NetworkedPlayer))]
     public class SimulatedObjectController : MonoBehaviour
     {
     
@@ -30,7 +30,7 @@ namespace ShardStudios {
             InputController inputController;
             MovementController movementController;
             CharacterController characterController;
-            NetworkedEntity networkedEntity;
+            NetworkedPlayer networkedEntity;
             Player owner;
 
             private const int CACHE_SIZE = 1024;
@@ -58,7 +58,7 @@ namespace ShardStudios {
             void Start(){
                 inputController = InputController.Instance;
                 movementController = GetComponent<MovementController>();
-                networkedEntity = GetComponent<NetworkedEntity>();
+                networkedEntity = GetComponent<NetworkedPlayer>();
                 owner = networkedEntity.GetOwner();
                 //id = networkedEntity.id;
                 if( owner?.isLocalPlayer == true )
@@ -91,7 +91,7 @@ namespace ShardStudios {
                 uint entId = message.GetUInt();
                 if( NetworkedEntity.Entities.ContainsKey(entId) ){
 
-                    NetworkedEntity simulatedEntity = NetworkedEntity.Entities[entId];
+                    NetworkedPlayer simulatedEntity = (NetworkedPlayer)NetworkedEntity.Entities[entId];
                     if( simulatedEntity != null ){
                         
 
@@ -115,7 +115,7 @@ namespace ShardStudios {
             private static void ReceiveOwnSimulationState(Message message){
 
                 uint entId = message.GetUInt();
-                NetworkedEntity simulatedEntity = NetworkedEntity.Entities[entId];
+                NetworkedPlayer simulatedEntity = (NetworkedPlayer)NetworkedEntity.Entities[entId];
 
                 if( simulatedEntity != null ){
 
@@ -136,7 +136,7 @@ namespace ShardStudios {
                 }
             }
 
-            private static void UpdateSimulatedPlayer(NetworkedEntity entity, SimulationState state){
+            private static void UpdateSimulatedPlayer(NetworkedPlayer entity, SimulationState state){
 
                 if( entity.lastSimulatedTick < state.tick ){
 

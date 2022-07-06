@@ -19,7 +19,7 @@ namespace ShardStudios {
 
                 foreach(KeyValuePair<uint, Queue<InputState>> inputs in clientInputs){
                     
-                    NetworkedEntity networkedEntity = NetworkedEntity.Entities[inputs.Key];
+                    NetworkedPlayer networkedEntity = (NetworkedPlayer)NetworkedEntity.Entities[inputs.Key];
                     MovementController movementController = networkedEntity.movementController;
 
                     Queue<InputState> queue = inputs.Value;
@@ -66,7 +66,7 @@ namespace ShardStudios {
             }
 
 
-            public void UpdateOwnState(NetworkedEntity networkedEntity, uint tick){
+            public void UpdateOwnState(NetworkedPlayer networkedEntity, uint tick){
 
                 Message message = Message.Create(MessageSendMode.unreliable, MessageID.ReceiveOwnSimulationState);
                 message.AddUInt(networkedEntity.id);
@@ -83,16 +83,17 @@ namespace ShardStudios {
                 
                 foreach( KeyValuePair<uint, NetworkedEntity> entity in NetworkedEntity.Entities ){
 
-                    if( entity.Value.lastSimulatedTick > 0 ){
+                    if( entity.Value.isNetworkedPlayer ){
 
+                        NetworkedPlayer player = (NetworkedPlayer)entity.Value;
                         Message message = Message.Create(MessageSendMode.unreliable, MessageID.ReceiveSimulationState);
                         message.AddUInt(entity.Key);
-                        message.AddVector3(entity.Value.transform.position);
-                        message.AddVector3(entity.Value.movementController.velocity);
-                        message.AddQuaternion(entity.Value.transform.rotation);
+                        message.AddVector3(player.transform.position);
+                        message.AddVector3(player.movementController.velocity);
+                        message.AddQuaternion(player.transform.rotation);
                         message.AddUInt(NetworkManager.tick);
                         
-                        NetworkManager.GameServer.Server.SendToAll(message, entity.Value.ownerId);
+                        NetworkManager.GameServer.Server.SendToAll(message, player.ownerId);
 
                     }
 

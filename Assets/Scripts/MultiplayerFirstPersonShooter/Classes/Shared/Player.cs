@@ -11,10 +11,16 @@ namespace ShardStudios {
         public static Dictionary<ushort, Player> playerList = new Dictionary<ushort, Player>();
 
         public ushort id;
-        public GameObject playerObject;
+        public NetworkedEntity playerObject;
         public string name;
 
         public bool isLocalPlayer = false;
+
+        // Gameplay variables.
+        public bool isAlive = true;
+
+        // Temp
+        public Transform hand;
 
         public Player(ushort id, string name = "nigger"){
 
@@ -66,7 +72,7 @@ namespace ShardStudios {
             }
 
             public void Kill(){
-                playerObject.GetComponent<NetworkedEntity>().DestroyNetworkedEntity();
+                playerObject.DestroyNetworkedEntity();
             }
 
             [MessageHandler((ushort)MessageID.PlayerReady)]
