@@ -9,20 +9,18 @@ namespace ShardStudios {
 
         public uint lastSimulatedTick = 0;
         public MovementController movementController;
+        public Player player; 
+
 
         public void Start(){
             isNetworkedPlayer = true;
             movementController = GetComponent<MovementController>();
+
+            player = GetOwner();
         }
 
         public override void OnSpawn(){
-            Debug.Log("SPAWNED");
-            Player player = GetOwner();
-            if( player != null ){
-                player.hand = transform.GetChild(1);
-                GameObject myGun = (GameObject)Instantiate(Resources.Load("Equipment/M4A1"), player.hand.position, player.hand.rotation);
-                myGun.transform.parent = player.hand;
-            }
+
         }
 
     }

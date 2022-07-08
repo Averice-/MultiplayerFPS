@@ -33,6 +33,7 @@ namespace ShardStudios {
                 message.AddUShort(gServ.playerCount);
                 message.AddUShort(gServ.maxClients);
                 message.AddString(gServ.mapName);
+                message.AddString(gServ.gameName);
 
                 Client.Send(message);
 

@@ -67,9 +67,9 @@ namespace ShardStudios {
 
                 NetworkManager.GameServer.Server.SendToAll(spawnEntityMessage);
 
-                networkedEntity.OnSpawn();
-
                 Entities.Add(autoIncrementId, networkedEntity);
+
+                networkedEntity.OnSpawn();
 
                 return networkedEntity;
      
@@ -147,10 +147,7 @@ namespace ShardStudios {
         }
 
         public Player GetOwner(){
-            if( Player.playerList.ContainsKey(ownerId) ){
-                return Player.playerList[ownerId];
-            }
-            return null;
+            return Player.GetById(this.ownerId);
         }
 
         public static void CleanupEntities(){
@@ -166,13 +163,6 @@ namespace ShardStudios {
             Entities.Remove(id);
             Destroy(this.gameObject);
         }
-
-        // broadcast already made entities. DONE
-        // function to clear all networked entities. DONE
-        // remove players that have left the game from networkedEntities and playerList; DONE
-        // remove users that leave the master server DONE
-        // remove players inputstates&simulationstates from simulatedobjecthandler. DONE
-        // create gamemode class so you can get spawning players when ready finished for base gamemode.
 
         
     }

@@ -17,6 +17,7 @@ namespace ShardStudios {
         public ushort serverPort = 7778;
         public string mapName = "SampleScene";
         public ushort playerCount = 0;
+        public string gameName = "BaseGameMode";
 
         Client MasterServer;
 
@@ -34,6 +35,8 @@ namespace ShardStudios {
                     maxClients = (ushort)int.Parse(args[i + 1]);
                 }else if( args[i] == "--region" && args.Length > i + 1){
                     NetworkManager.Instance.region = (RegionID)int.Parse(args[i + 1]);
+                }else if( args[i] == "--gamemode" && args.Length > i + 1){
+                    gameName = args[i+1];
                 }
             }
 
@@ -57,7 +60,7 @@ namespace ShardStudios {
             Message message = Message.Create(MessageSendMode.reliable, MessageID.GameServerAddPlayer);
             MasterServer.Send(message);
 
-            new Player(e.Client.Id); // TEMPORARY
+            //new Player(e.Client.Id); // TEMPORARY
         }
 
         public void ServerPlayerDisconnected(object sender, ClientDisconnectedEventArgs e){
@@ -65,6 +68,10 @@ namespace ShardStudios {
             MasterServer.Send(message);
 
             Debug.Log($"Cleaning up after player[{e.Id}]");
+
+            if( NetworkManager.connectedAndReady ){
+                GameMode.Game.PlayerLeft(Player.GetById(e.Id));
+            }
 
             NetworkedEntity.CleanupPlayerOwnedEntities(e.Id);
             Player.playerList.Remove(e.Id);
@@ -80,6 +87,7 @@ namespace ShardStudios {
             message.AddString(mapname);
 
             MasterServer.Send(message);
+            NetworkManager.Ready();
         }
 
         public void Tick(){

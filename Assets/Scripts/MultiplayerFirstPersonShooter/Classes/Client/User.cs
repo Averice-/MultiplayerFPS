@@ -12,7 +12,7 @@ namespace ShardStudios {
 
         // Saved Details
         public RegionID selectedRegion;
-        public string username;
+        public string username = "Averice";
         public string password;
 
         // Temp Details;
@@ -21,6 +21,7 @@ namespace ShardStudios {
         public ushort game_maxplayers;
         public ushort game_playercount;
         public string game_mapname;
+        public string game_gamename;
 
         public bool connectedToGameServer = false;
 
@@ -63,6 +64,7 @@ namespace ShardStudios {
             NetworkManager.User.game_maxplayers = message.GetUShort();
             NetworkManager.User.game_playercount = message.GetUShort();
             NetworkManager.User.game_mapname = message.GetString();
+            NetworkManager.User.game_gamename = message.GetString();
 
             NetworkManager.GameClient.Client.Connect($"{NetworkManager.User.game_ip}:{NetworkManager.User.game_port}");
 

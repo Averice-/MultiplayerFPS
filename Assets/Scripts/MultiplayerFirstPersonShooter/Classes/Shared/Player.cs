@@ -11,7 +11,7 @@ namespace ShardStudios {
         public static Dictionary<ushort, Player> playerList = new Dictionary<ushort, Player>();
 
         public ushort id;
-        public NetworkedEntity playerObject;
+        public NetworkedPlayer playerObject;
         public string name;
 
         public bool isLocalPlayer = false;
@@ -21,6 +21,8 @@ namespace ShardStudios {
 
         // Temp
         public Transform hand;
+
+        public EquipmentManager equipment;
 
         public Player(ushort id, string name = "nigger"){
 
@@ -68,7 +70,15 @@ namespace ShardStudios {
             }
 
             public void Spawn(Vector3 position, Quaternion rotation){
-                playerObject = NetworkedEntity.Create("ClientPlayer", position, rotation, this.id);
+                playerObject = (NetworkedPlayer)NetworkedEntity.Create("ClientPlayer", position, rotation, this.id);
+
+                Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerSpawned);
+                message.AddUShort(id);
+                message.AddUInt(playerObject.id);
+
+                NetworkManager.GameServer.Server.SendToAll(message);
+
+                GameMode.Game.OnPlayerSpawn(this);
             }
 
             public void Kill(){
@@ -77,8 +87,22 @@ namespace ShardStudios {
 
             [MessageHandler((ushort)MessageID.PlayerReady)]
             public static void PlayerReady(ushort from, Message message){
+                Player newPlayer = new Player(from, message.GetString());
                 NetworkedEntity.Broadcast(from);
-                playerList[from].Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+                GameMode.Game.PlayerJoined(newPlayer);
+                playerList[from].Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity); // TEMP
+            }
+
+            public static void NetworkGiveMessage(Player player, string equipmentName){
+
+                Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerGiveItem);
+
+                message.AddUShort(player.id);
+                message.AddString(equipmentName);
+
+                NetworkManager.GameServer.Server.SendToAll(message);
+                Debug.Log("Give message sent.");
+
             }
 
         #endif
@@ -87,12 +111,59 @@ namespace ShardStudios {
 
             [MessageHandler((ushort)MessageID.PlayerJoined)]
             public static void ReceivePlayer(Message message){
-                new Player(message.GetUShort(), message.GetString());
+                Player joinedPlayer = new Player(message.GetUShort(), message.GetString());
+                GameMode.Game.PlayerJoined(joinedPlayer);
+            }
+
+            [MessageHandler((ushort)MessageID.PlayerGiveItem)]
+            public static void PlayerGiveItem(Message message){
+                Player playerToGive = GetById(message.GetUShort());
+                if( playerToGive != null ){
+                    playerToGive.Give(message.GetString());
+                }
+            }
+
+            [MessageHandler((ushort)MessageID.PlayerSpawned)]
+            public static void PlayerSpawned(Message message){
+                Player spawnedPlayer = GetById(message.GetUShort());
+                spawnedPlayer.playerObject = (NetworkedPlayer)NetworkedEntity.GetEntityById(message.GetUInt());
+                GameMode.Game.OnPlayerSpawn(spawnedPlayer);
+                if( spawnedPlayer.isLocalPlayer ){
+                    // Setup camera.
+                }
             }
 
             
 
         #endif
+
+        public static Player GetById(ushort id){
+            if( playerList.ContainsKey(id) ){
+                return playerList[id];
+            }
+            return null;
+        }
+
+        // Already created item.
+        public void Give(EquipmentItem item){
+            equipment.GiveItem(item);
+
+            #if SERVER
+                NetworkGiveMessage(this, item.equipmentName);
+            #endif
+        }
+
+        public void Give(string item){
+
+            GameObject newItem = (GameObject)NetworkManager.Instantiate(Resources.Load($"Equipment/{item}"), playerObject.transform);
+            EquipmentItem equipmentItem = newItem.GetComponent(item) as EquipmentItem;
+            equipment.GiveItem(equipmentItem);
+            Debug.Log($"Giving player[{id}] item[{item}]");
+            #if SERVER
+                NetworkGiveMessage(this, item);
+            #endif
+
+        }
 
         
     }

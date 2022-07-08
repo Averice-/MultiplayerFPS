@@ -26,7 +26,9 @@ namespace ShardStudios {
         ReceiveSimulationState,
         PlayerJoined,
         PlayerReady,
-        ReceiveOwnSimulationState
+        ReceiveOwnSimulationState,
+        PlayerSpawned,
+        PlayerGiveItem
     }
 
     public class NetworkManager : MonoBehaviour
@@ -51,6 +53,7 @@ namespace ShardStudios {
         public RegionID region = RegionID.AU;
 
         public static uint tick = 0;
+        public static bool connectedAndReady = false;
 
         #if SERVER
             public static GameServer GameServer = new GameServer();
@@ -92,9 +95,18 @@ namespace ShardStudios {
 
         }
 
+        public static void Ready(){
+            connectedAndReady = true;
+            GameMode.Game = new BaseGameMode(); // TEMPORARY, start this based on --gamemode or gServ.gameName;
+            GameMode.Game.Start();
+        }
+
         void FixedUpdate(){
 
             tick++;
+
+            if( connectedAndReady )
+                GameMode.Game.Tick();
 
             #if SERVER
 
@@ -108,6 +120,8 @@ namespace ShardStudios {
 
         void Update(){
 
+            if( connectedAndReady )
+                GameMode.Game.Update();
 
             #if SERVER
                 GameServer.Tick();
@@ -133,6 +147,8 @@ namespace ShardStudios {
         #endif
 
         private void OnApplicationQuit(){
+            if( connectedAndReady )
+                GameMode.Game.Shutdown();
 
             #if SERVER
                 GameServer.Kill();

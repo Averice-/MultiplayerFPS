@@ -44,6 +44,9 @@ namespace ShardStudios {
         }
 
         public void OtherPlayerDisconnected(object sender, ClientDisconnectedEventArgs e){
+            if( NetworkManager.connectedAndReady ){
+                GameMode.Game.PlayerLeft(Player.GetById(e.Id));
+            }
             NetworkedEntity.CleanupPlayerOwnedEntities(e.Id);
             Player.playerList.Remove(e.Id);
             Debug.Log("Other player disconnected!");
@@ -55,9 +58,12 @@ namespace ShardStudios {
             while( !loading.isDone ){
                 yield return null;
             }
-
+            
+            NetworkManager.Ready();
             Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerReady);
+            message.AddString(NetworkManager.User.username);
             Client.Send(message);
+
         }
 
         public void Tick(){

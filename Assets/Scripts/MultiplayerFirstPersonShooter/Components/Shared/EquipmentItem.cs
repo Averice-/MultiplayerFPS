@@ -37,6 +37,12 @@ namespace ShardStudios {
             Debug.Log($"Dropped[{equipmentName}]");
         }
 
+        public virtual void OnPickup(Player player){
+            // stick it in players slot place.
+            // play sound.
+            transform.parent = player.playerObject.transform;
+        }
+
     }
 
 }

@@ -5,20 +5,22 @@ using UnityEngine.UI;
 
 namespace ShardStudios {
 
-#if !SERVER
+
 
     public class LoginHandler : MonoBehaviour
     {
-        [SerializeField] InputField usernameInput;
-        [SerializeField] InputField passwordInput;
-        [SerializeField] Button connectButton;
+        #if !SERVER
+            [SerializeField] InputField usernameInput;
+            [SerializeField] InputField passwordInput;
+            [SerializeField] Button connectButton;
 
-        public void Connect(){
-            // Temporary
-            NetworkManager.User.RequestQuickServer();
-        }
+            public void Connect(){
+                // Temporary
+                NetworkManager.User.RequestQuickServer();
+            }
+        #endif
     }
 
-#endif
+
 
 }

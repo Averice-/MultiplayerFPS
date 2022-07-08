@@ -33,6 +33,13 @@ namespace ShardStudios {
             }
         }
 
+        public Player owner;
+        
+        void Start(){
+            owner = Player.GetById(GetComponent<NetworkedPlayer>().ownerId);
+            owner.equipment = this;
+        }
+
         // ItemInSlot(EquipmentSlot.Primary);
         public EquipmentItem ItemInSlot(EquipmentSlot slot){
             if( equipment.ContainsKey(slot) ){
@@ -50,11 +57,12 @@ namespace ShardStudios {
             return null;
         }
 
-        public bool GiveItem(EquipmentSlot slot, EquipmentItem item){
-            if( ItemInSlot(slot) != null ){
+        public bool GiveItem(EquipmentItem item){
+            if( ItemInSlot(item.slotType) != null ){
                 return false;
             }
-            equipment.Add(slot, item);
+            equipment.Add(item.slotType, item);
+            item.OnPickup(owner);
             return true;
         }
 
