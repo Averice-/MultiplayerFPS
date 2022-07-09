@@ -34,10 +34,12 @@ namespace ShardStudios {
         }
 
         public Player owner;
+
+        [SerializeField] Transform hands;
+        [SerializeField] Transform[] attachmentSlots;
         
         void Start(){
             owner = Player.GetById(GetComponent<NetworkedPlayer>().ownerId);
-            owner.equipment = this;
         }
 
         // ItemInSlot(EquipmentSlot.Primary);
@@ -63,6 +65,13 @@ namespace ShardStudios {
             }
             equipment.Add(item.slotType, item);
             item.OnPickup(owner);
+
+            if( (int)item.slotType == selectedEquipment ){
+                EquipItem(item.slotType);
+            }else{
+                HolsterItem(item);
+            }
+            
             return true;
         }
 
@@ -72,6 +81,56 @@ namespace ShardStudios {
                 return selected;
             }
             return null;
+        }
+
+        public void HolsterItem(EquipmentItem item){
+            Transform slot = attachmentSlots[(int)item.slotType];
+            if( slot != null ){
+                item.transform.position = slot.position;
+                item.transform.rotation = slot.rotation;
+            }
+            if( GetEquippedItem() == item ){
+                item.OnUnequip();
+            }
+        }
+
+        public EquipmentItem GetEquippedItem(){
+            EquipmentItem slottedItem = ItemInSlot((EquipmentSlot)selectedEquipment);
+            if( slottedItem != null ){
+                return slottedItem;
+            }
+            return null;       
+        }
+
+        public bool EquipItem(EquipmentSlot slot){
+
+            EquipmentItem equipped = GetEquippedItem();
+            EquipmentItem itemToEquip = ItemInSlot(slot);
+
+            if( itemToEquip != null ){
+
+                if( equipped != null ){
+                    HolsterItem(equipped);
+                }
+                itemToEquip.transform.position = hands.position;
+                itemToEquip.transform.rotation = hands.rotation;
+                itemToEquip.OnEquip();
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        public void ChangeSelectedItem(EquipmentSlot nextItem){
+            if( (int)nextItem == selectedEquipment || (int)nextItem == -1 )
+                return;
+
+            if( EquipItem(nextItem) ){
+                selectedEquipment = (int)nextItem;
+            }
         }
 
         public EquipmentItem GetNextBestSelectedItem(){

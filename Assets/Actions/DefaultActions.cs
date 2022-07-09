@@ -41,6 +41,38 @@ public class @DefaultActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""PrimaryAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""16e6d55e-1df6-4290-b403-2724edc99cd5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""SecondaryAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""744f8811-c92b-4f9a-9f33-ee8c726374ea"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""PrimarySlot1"",
+                    ""type"": ""Button"",
+                    ""id"": ""769b4a37-52f0-401f-8754-e454250cbb3a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""SecondarySlot2"",
+                    ""type"": ""Button"",
+                    ""id"": ""27d942fa-47ff-4e61-bb1f-97d4ad026bc5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -120,6 +152,50 @@ public class @DefaultActions : IInputActionCollection, IDisposable
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""af51a725-99f1-4e6f-9b30-25c78c06ce25"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""PrimaryAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""585c1da8-bb5d-4333-8fc0-0f6bb5402689"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""SecondaryAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fbab2065-50fb-4cf0-b1d4-02214802aa0e"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""PrimarySlot1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a5439f9a-80a7-4d27-8dde-4b0d186dcdec"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""SecondarySlot2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -148,6 +224,10 @@ public class @DefaultActions : IInputActionCollection, IDisposable
         m_PlayerMovement_Jump = m_PlayerMovement.FindAction("Jump", throwIfNotFound: true);
         m_PlayerMovement_Move = m_PlayerMovement.FindAction("Move", throwIfNotFound: true);
         m_PlayerMovement_Look = m_PlayerMovement.FindAction("Look", throwIfNotFound: true);
+        m_PlayerMovement_PrimaryAttack = m_PlayerMovement.FindAction("PrimaryAttack", throwIfNotFound: true);
+        m_PlayerMovement_SecondaryAttack = m_PlayerMovement.FindAction("SecondaryAttack", throwIfNotFound: true);
+        m_PlayerMovement_PrimarySlot1 = m_PlayerMovement.FindAction("PrimarySlot1", throwIfNotFound: true);
+        m_PlayerMovement_SecondarySlot2 = m_PlayerMovement.FindAction("SecondarySlot2", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -200,6 +280,10 @@ public class @DefaultActions : IInputActionCollection, IDisposable
     private readonly InputAction m_PlayerMovement_Jump;
     private readonly InputAction m_PlayerMovement_Move;
     private readonly InputAction m_PlayerMovement_Look;
+    private readonly InputAction m_PlayerMovement_PrimaryAttack;
+    private readonly InputAction m_PlayerMovement_SecondaryAttack;
+    private readonly InputAction m_PlayerMovement_PrimarySlot1;
+    private readonly InputAction m_PlayerMovement_SecondarySlot2;
     public struct PlayerMovementActions
     {
         private @DefaultActions m_Wrapper;
@@ -207,6 +291,10 @@ public class @DefaultActions : IInputActionCollection, IDisposable
         public InputAction @Jump => m_Wrapper.m_PlayerMovement_Jump;
         public InputAction @Move => m_Wrapper.m_PlayerMovement_Move;
         public InputAction @Look => m_Wrapper.m_PlayerMovement_Look;
+        public InputAction @PrimaryAttack => m_Wrapper.m_PlayerMovement_PrimaryAttack;
+        public InputAction @SecondaryAttack => m_Wrapper.m_PlayerMovement_SecondaryAttack;
+        public InputAction @PrimarySlot1 => m_Wrapper.m_PlayerMovement_PrimarySlot1;
+        public InputAction @SecondarySlot2 => m_Wrapper.m_PlayerMovement_SecondarySlot2;
         public InputActionMap Get() { return m_Wrapper.m_PlayerMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -225,6 +313,18 @@ public class @DefaultActions : IInputActionCollection, IDisposable
                 @Look.started -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnLook;
                 @Look.performed -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnLook;
                 @Look.canceled -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnLook;
+                @PrimaryAttack.started -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnPrimaryAttack;
+                @PrimaryAttack.performed -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnPrimaryAttack;
+                @PrimaryAttack.canceled -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnPrimaryAttack;
+                @SecondaryAttack.started -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnSecondaryAttack;
+                @SecondaryAttack.performed -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnSecondaryAttack;
+                @SecondaryAttack.canceled -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnSecondaryAttack;
+                @PrimarySlot1.started -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnPrimarySlot1;
+                @PrimarySlot1.performed -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnPrimarySlot1;
+                @PrimarySlot1.canceled -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnPrimarySlot1;
+                @SecondarySlot2.started -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnSecondarySlot2;
+                @SecondarySlot2.performed -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnSecondarySlot2;
+                @SecondarySlot2.canceled -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnSecondarySlot2;
             }
             m_Wrapper.m_PlayerMovementActionsCallbackInterface = instance;
             if (instance != null)
@@ -238,6 +338,18 @@ public class @DefaultActions : IInputActionCollection, IDisposable
                 @Look.started += instance.OnLook;
                 @Look.performed += instance.OnLook;
                 @Look.canceled += instance.OnLook;
+                @PrimaryAttack.started += instance.OnPrimaryAttack;
+                @PrimaryAttack.performed += instance.OnPrimaryAttack;
+                @PrimaryAttack.canceled += instance.OnPrimaryAttack;
+                @SecondaryAttack.started += instance.OnSecondaryAttack;
+                @SecondaryAttack.performed += instance.OnSecondaryAttack;
+                @SecondaryAttack.canceled += instance.OnSecondaryAttack;
+                @PrimarySlot1.started += instance.OnPrimarySlot1;
+                @PrimarySlot1.performed += instance.OnPrimarySlot1;
+                @PrimarySlot1.canceled += instance.OnPrimarySlot1;
+                @SecondarySlot2.started += instance.OnSecondarySlot2;
+                @SecondarySlot2.performed += instance.OnSecondarySlot2;
+                @SecondarySlot2.canceled += instance.OnSecondarySlot2;
             }
         }
     }
@@ -256,5 +368,9 @@ public class @DefaultActions : IInputActionCollection, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
+        void OnPrimaryAttack(InputAction.CallbackContext context);
+        void OnSecondaryAttack(InputAction.CallbackContext context);
+        void OnPrimarySlot1(InputAction.CallbackContext context);
+        void OnSecondarySlot2(InputAction.CallbackContext context);
     }
 }

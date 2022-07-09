@@ -41,12 +41,13 @@ namespace ShardStudios {
         }
 
         public override void OnPlayerSpawn(Player player){
-            // #if SERVER
-            //     player.Give("weapon_m4a1");
-            // #endif
+            #if SERVER
+                player.Give("weapon_m4a1");
+                player.Give("weapon_pistol");
+            #endif
         }
 
-        // Need to work out when to give player weapons.. it seems EquipmentManager isn't there yet when we try!
+        // Give player weapons to other players.
 
     }
 

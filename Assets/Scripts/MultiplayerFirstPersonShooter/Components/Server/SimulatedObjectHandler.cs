@@ -109,6 +109,8 @@ namespace ShardStudios {
                     input = message.GetVector2(),
                     rotation = message.GetQuaternion(),
                     jumping = message.GetByte(),
+                    primaryAttack = message.GetByte(),
+                    secondaryAttack = message.GetByte(),
                     tick = message.GetUInt()
                 };
 
@@ -118,6 +120,22 @@ namespace ShardStudios {
                 }
 
                 clientInputs[id].Enqueue(receivedInputState);
+            }
+
+            [MessageHandler((ushort)MessageID.PlayerChangeWeapon)]
+            private static void PlayerChangeWeapon(ushort from, Message message){
+                Player player = Player.GetById(from);
+                int weapon = message.GetInt();
+                if( player.equipment != null ){
+                    player.equipment.ChangeSelectedItem((EquipmentSlot)weapon);
+
+                    Message newMessage = Message.Create(MessageSendMode.reliable, MessageID.PlayerUpdateSelectedWeapon);
+                    newMessage.AddUShort(player.id);
+                    newMessage.AddInt(weapon);
+
+                    NetworkManager.GameServer.Server.SendToAll(newMessage);
+                }
+
             }
 
         #endif

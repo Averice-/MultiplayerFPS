@@ -16,6 +16,8 @@ namespace ShardStudios {
         public Vector2 input;
         public Quaternion rotation; // rotation will not be server authoritative.
         public byte jumping;
+        public byte primaryAttack;
+        public byte secondaryAttack;
         public uint tick;
     }
 
@@ -79,8 +81,12 @@ namespace ShardStudios {
                 activeInputState = new InputState {
                     input = moveAxis,
                     rotation = transform.rotation,
-                    jumping = (byte)0
+                    jumping = (byte)0,
+                    primaryAttack = inputController.GetMouseButtonStatus() ? (byte)1 : (byte)0,
+                    secondaryAttack = inputController.GetMouseButtonStatus(true) ? (byte)1 : (byte)0
                 };
+
+                InputWeaponSlot(inputController.GetSlot());
 
             }
 
@@ -109,6 +115,25 @@ namespace ShardStudios {
 
                 }
 
+            }
+
+            private void InputWeaponSlot(int slot){
+                if( owner.equipment != null ){
+                    owner.equipment.ChangeSelectedItem((EquipmentSlot)slot);
+
+                    Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerChangeWeapon);
+                    message.AddInt(slot);
+
+                    NetworkManager.GameClient.Client.Send(message);
+                }
+            }
+
+            [MessageHandler((ushort)MessageID.PlayerUpdateSelectedWeapon)]
+            private static void PlayerUpdateSelectedWeapon(Message message){
+                Player player = Player.GetById(message.GetUShort());
+                EquipmentSlot slot = (EquipmentSlot)message.GetInt();
+
+                player.equipment.ChangeSelectedItem(slot);
             }
 
             [MessageHandler((ushort)MessageID.ReceiveOwnSimulationState)]
@@ -160,6 +185,8 @@ namespace ShardStudios {
                 message.AddVector2(activeInputState.input);
                 message.AddQuaternion(activeInputState.rotation);
                 message.AddByte(activeInputState.jumping);
+                message.AddByte(activeInputState.primaryAttack);
+                message.AddByte(activeInputState.secondaryAttack);
                 message.AddUInt(activeInputState.tick);
 
                 NetworkManager.GameClient.Client.Send(message);

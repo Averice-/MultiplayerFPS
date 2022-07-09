@@ -28,7 +28,10 @@ namespace ShardStudios {
         PlayerReady,
         ReceiveOwnSimulationState,
         PlayerSpawned,
-        PlayerGiveItem
+        PlayerGiveItem,
+        PlayerPrimaryAttacked,
+        PlayerChangeWeapon,
+        PlayerUpdateSelectedWeapon
     }
 
     public class NetworkManager : MonoBehaviour

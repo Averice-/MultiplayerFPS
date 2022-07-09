@@ -71,6 +71,7 @@ namespace ShardStudios {
 
             public void Spawn(Vector3 position, Quaternion rotation){
                 playerObject = (NetworkedPlayer)NetworkedEntity.Create("ClientPlayer", position, rotation, this.id);
+                equipment = playerObject.GetComponent<EquipmentManager>();
 
                 Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerSpawned);
                 message.AddUShort(id);
@@ -127,15 +128,26 @@ namespace ShardStudios {
             public static void PlayerSpawned(Message message){
                 Player spawnedPlayer = GetById(message.GetUShort());
                 spawnedPlayer.playerObject = (NetworkedPlayer)NetworkedEntity.GetEntityById(message.GetUInt());
+                spawnedPlayer.equipment = spawnedPlayer.playerObject.GetComponent<EquipmentManager>();
                 GameMode.Game.OnPlayerSpawn(spawnedPlayer);
                 if( spawnedPlayer.isLocalPlayer ){
                     // Setup camera.
                 }
             }
 
+            [MessageHandler((ushort)MessageID.PlayerPrimaryAttacked)]
+            public static void PlayerPrimaryAttacked(Message message){
+                Player player = GetById(message.GetUShort());
+                EquipmentItem playerEquippedItem = player.equipment.GetEquippedItem();
+                if( playerEquippedItem != null ){
+                    playerEquippedItem.OnPrimaryAttack();
+                }
+            }
+
             
 
         #endif
+
 
         public static Player GetById(ushort id){
             if( playerList.ContainsKey(id) ){

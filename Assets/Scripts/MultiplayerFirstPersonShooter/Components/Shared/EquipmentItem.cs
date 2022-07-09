@@ -21,8 +21,15 @@ namespace ShardStudios {
             Debug.Log("Pew Pew!");
         }
 
+        public virtual void OnPrimaryAttackCancelled(){
+        }
+
         public virtual void OnSecondaryAttack(){
             Debug.Log("Bang Bang!");
+        }
+
+        public virtual void OnSecondaryAttackCancelled(){
+            
         }
 
         public virtual void OnEquip(){
@@ -40,7 +47,6 @@ namespace ShardStudios {
         public virtual void OnPickup(Player player){
             // stick it in players slot place.
             // play sound.
-            transform.parent = player.playerObject.transform;
         }
 
     }
