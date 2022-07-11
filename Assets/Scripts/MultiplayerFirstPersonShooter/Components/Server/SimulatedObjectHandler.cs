@@ -38,6 +38,7 @@ namespace ShardStudios {
                             
                             movementController.transform.rotation = inputState.rotation;
                             movementController.AddForce(new Vector3( inputState.input.x, 0f, inputState.input.y).normalized);
+                            networkedEntity.GetOwner().PrimaryAttack(inputState.primaryAttack == (byte)1);
                             //movementController.Move();
 
                             //Physics.SyncTransforms();

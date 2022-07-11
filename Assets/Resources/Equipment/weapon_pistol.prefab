@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slotType: 1
   equipmentName: Pistol
+  codeName: weapon_pistol
   price: 450
   viewModel: {fileID: 0}
   positionOffset: {x: 0, y: 0, z: 0}
@@ -62,6 +63,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -71,7 +84,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0321
+      value: 0.046
       objectReference: {fileID: 0}
     - target: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
       propertyPath: m_LocalRotation.w

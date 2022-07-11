@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using RiptideNetworking;
 
 namespace ShardStudios {
 
@@ -37,10 +38,47 @@ namespace ShardStudios {
 
         [SerializeField] Transform hands;
         [SerializeField] Transform[] attachmentSlots;
+        [SerializeField] Transform eyes;
         
         void Start(){
             owner = Player.GetById(GetComponent<NetworkedPlayer>().ownerId);
         }
+
+        #if SERVER
+            public static void Broadcast(ushort id){
+                
+                foreach(KeyValuePair<ushort, Player> player in Player.playerList){
+                    
+                    Player ply = player.Value;
+                    if( player.Key == id || !ply.isAlive )
+                        continue;
+
+                    if( ply.equipment != null ){
+
+                        for( int i = 0; i < 11; i++ ){
+
+                            EquipmentItem item = ply.equipment.ItemInSlot((EquipmentSlot)i);
+                            if( item != null ){
+
+                                Message weaponMessage = Message.Create(MessageSendMode.reliable, MessageID.PlayerGiveItem);
+                                weaponMessage.AddUShort(player.Key);
+                                weaponMessage.AddString(item.codeName);
+
+                                NetworkManager.GameServer.Server.Send(weaponMessage, id);
+
+                            }
+                        }
+
+                        Message equippedWeaponMessage = Message.Create(MessageSendMode.reliable, MessageID.PlayerUpdateSelectedWeapon);
+                        equippedWeaponMessage.AddUShort(player.Key);
+                        equippedWeaponMessage.AddInt(ply.equipment.selectedEquipment);
+
+                        NetworkManager.GameServer.Server.Send(equippedWeaponMessage, id);
+                    }
+                }
+            }
+
+        #endif
 
         // ItemInSlot(EquipmentSlot.Primary);
         public EquipmentItem ItemInSlot(EquipmentSlot slot){
@@ -65,6 +103,7 @@ namespace ShardStudios {
             }
             equipment.Add(item.slotType, item);
             item.OnPickup(owner);
+            item.SetEyePosition(eyes);
 
             if( (int)item.slotType == selectedEquipment ){
                 EquipItem(item.slotType);
@@ -73,14 +112,6 @@ namespace ShardStudios {
             }
             
             return true;
-        }
-
-        public EquipmentItem GetSelectedItem(){
-            EquipmentItem selected = ItemInSlot((EquipmentSlot)selectedEquipment);
-            if( selected != null ){
-                return selected;
-            }
-            return null;
         }
 
         public void HolsterItem(EquipmentItem item){

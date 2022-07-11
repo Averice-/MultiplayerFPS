@@ -17,11 +17,9 @@ namespace ShardStudios {
         public bool isLocalPlayer = false;
 
         // Gameplay variables.
-        public bool isAlive = true;
-
-        // Temp
-        public Transform hand;
-
+        public bool isAlive = false;
+        public bool lastPrimaryAttackMessage = false;
+        public bool lastSecondaryAttackMessage = false;
         public EquipmentManager equipment;
 
         public Player(ushort id, string name = "nigger"){
@@ -38,8 +36,6 @@ namespace ShardStudios {
                 message.AddString(name);
 
                 NetworkManager.GameServer.Server.SendToAll(message);
-
-                //Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
 
             #else
 
@@ -65,6 +61,16 @@ namespace ShardStudios {
 
                     NetworkManager.GameServer.Server.Send(message, id);
 
+                    if( player.Value.isAlive || player.Key != id ){
+
+                        Message spawnMessage = Message.Create(MessageSendMode.reliable, MessageID.PlayerSpawned);
+                        spawnMessage.AddUShort(player.Key);
+                        spawnMessage.AddUInt(player.Value.playerObject.id);
+
+                        NetworkManager.GameServer.Server.Send(spawnMessage, id);
+
+                    }
+
                 }
 
             }
@@ -72,6 +78,8 @@ namespace ShardStudios {
             public void Spawn(Vector3 position, Quaternion rotation){
                 playerObject = (NetworkedPlayer)NetworkedEntity.Create("ClientPlayer", position, rotation, this.id);
                 equipment = playerObject.GetComponent<EquipmentManager>();
+
+                isAlive = true;
 
                 Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerSpawned);
                 message.AddUShort(id);
@@ -88,9 +96,11 @@ namespace ShardStudios {
 
             [MessageHandler((ushort)MessageID.PlayerReady)]
             public static void PlayerReady(ushort from, Message message){
-                Player newPlayer = new Player(from, message.GetString());
-                NetworkedEntity.Broadcast(from);
-                GameMode.Game.PlayerJoined(newPlayer);
+                NetworkedEntity.Broadcast(from); // all spawned networked entities.
+                Player newPlayer = new Player(from, message.GetString()); // all connected players will be broadcast to me.
+                GameMode.Game.PlayerJoined(newPlayer); // call gamemode playerjoined for functionality.
+                EquipmentManager.Broadcast(from); // all player weapons and selected weapon
+
                 playerList[from].Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity); // TEMP
             }
 
@@ -130,7 +140,9 @@ namespace ShardStudios {
                 spawnedPlayer.playerObject = (NetworkedPlayer)NetworkedEntity.GetEntityById(message.GetUInt());
                 spawnedPlayer.equipment = spawnedPlayer.playerObject.GetComponent<EquipmentManager>();
                 GameMode.Game.OnPlayerSpawn(spawnedPlayer);
+                spawnedPlayer.isAlive = true;
                 if( spawnedPlayer.isLocalPlayer ){
+                    CameraController.SetPlayer(spawnedPlayer);
                     // Setup camera.
                 }
             }
@@ -138,10 +150,8 @@ namespace ShardStudios {
             [MessageHandler((ushort)MessageID.PlayerPrimaryAttacked)]
             public static void PlayerPrimaryAttacked(Message message){
                 Player player = GetById(message.GetUShort());
-                EquipmentItem playerEquippedItem = player.equipment.GetEquippedItem();
-                if( playerEquippedItem != null ){
-                    playerEquippedItem.OnPrimaryAttack();
-                }
+                bool isAttacking = message.GetByte() == (byte)1;
+                player.PrimaryAttack(isAttacking);
             }
 
             
@@ -156,15 +166,6 @@ namespace ShardStudios {
             return null;
         }
 
-        // Already created item.
-        public void Give(EquipmentItem item){
-            equipment.GiveItem(item);
-
-            #if SERVER
-                NetworkGiveMessage(this, item.equipmentName);
-            #endif
-        }
-
         public void Give(string item){
 
             GameObject newItem = (GameObject)NetworkManager.Instantiate(Resources.Load($"Equipment/{item}"), playerObject.transform);
@@ -175,6 +176,26 @@ namespace ShardStudios {
                 NetworkGiveMessage(this, item);
             #endif
 
+        }
+
+        public void PrimaryAttack(bool isAttacking = true){
+            if( isAttacking == lastPrimaryAttackMessage )
+                return;
+
+            if( equipment != null ){
+                EquipmentItem equipmentItem = equipment.GetEquippedItem();
+                if( equipmentItem != null ){   
+                    lastPrimaryAttackMessage = isAttacking;
+                    equipmentItem.OnPrimaryAttack(isAttacking);
+                    #if SERVER
+                        Message networkAttack = Message.Create(MessageSendMode.reliable, MessageID.PlayerPrimaryAttacked);
+                        networkAttack.AddUShort(id);
+                        networkAttack.AddByte(isAttacking ? (byte)1 : (byte)0);
+
+                        NetworkManager.GameServer.Server.SendToAll(networkAttack, id);
+                    #endif
+                }
+            }
         }
 
         

@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,6 +43,7 @@ namespace ShardStudios {
 
             private InputState[] inputStates = new InputState[CACHE_SIZE];
             private InputState activeInputState;
+
             private uint lastReconciledFrame = 0;
 
             private Vector2 moveAxis;
@@ -52,7 +54,7 @@ namespace ShardStudios {
             // interpolating settings.
             private static float interpolationMultiplier = 0.35f;
             private static float rotationMultiplier = 0.28f;
-            private static float snapThreshold = 0.2f;
+            private static float snapThreshold = 0.1f;
 
             private static float toleranceMagnitude = snapThreshold * snapThreshold;
 
@@ -118,7 +120,7 @@ namespace ShardStudios {
             }
 
             private void InputWeaponSlot(int slot){
-                if( owner.equipment != null ){
+                if( owner.equipment != null && slot != owner.equipment.selectedEquipment && slot != -1 ){
                     owner.equipment.ChangeSelectedItem((EquipmentSlot)slot);
 
                     Message message = Message.Create(MessageSendMode.reliable, MessageID.PlayerChangeWeapon);
@@ -169,8 +171,10 @@ namespace ShardStudios {
                         entity.transform.position = Vector3.Lerp(entity.transform.position, state.position, interpolationMultiplier);
                     }
                     entity.transform.rotation = Quaternion.Lerp(entity.transform.rotation, state.rotation, rotationMultiplier);
-                    entity.movementController.velocity = state.velocity;
                     entity.lastSimulatedTick = state.tick;
+
+                    if( entity.movementController != null )
+                        entity.movementController.velocity = state.velocity;
 
                     Physics.SyncTransforms();
 
@@ -179,7 +183,7 @@ namespace ShardStudios {
             }
 
             public void SendInput(){
-
+                
                 Message message = Message.Create(MessageSendMode.unreliable, MessageID.ClientSendInput);
                 message.AddUInt(networkedEntity.id);
                 message.AddVector2(activeInputState.input);
@@ -190,6 +194,7 @@ namespace ShardStudios {
                 message.AddUInt(activeInputState.tick);
 
                 NetworkManager.GameClient.Client.Send(message);
+
             }
 
 
@@ -207,6 +212,7 @@ namespace ShardStudios {
                 }
 
                 movementController.AddForce(new Vector3(moveAxis.x, 0f, moveAxis.y).normalized);
+                networkedEntity.GetOwner().PrimaryAttack(activeInputState.primaryAttack == (byte)1);
 
                 if( NetworkManager.GameClient.Client != null && NetworkManager.GameClient.IsConnected() ){
                     SendInput();
@@ -217,7 +223,6 @@ namespace ShardStudios {
 
                 simulationStates[index] = GetSimulationState(activeInputState);
                 inputStates[index] = activeInputState;
-
 
             }
 
@@ -256,12 +261,15 @@ namespace ShardStudios {
 
                 float positionDifference = (activeServerState.position - cachedSimulationState.position).magnitude;
                 if(  positionDifference > snapThreshold ){
+                    
+                    Quaternion currentRotation = transform.rotation; // We'll replace this after our calculations. Should stop shitty reconciliation jitter from rotation without
+                                                                     // causing our replay reconciliation to be off by bad rotation amounts.
 
                     Debug.Log($"Out of sync, interpolating...[{positionDifference}]");
 
                     transform.position = Vector3.Lerp(cachedSimulationState.position, activeServerState.position, interpolationMultiplier);
                     movementController.velocity = activeServerState.velocity;
-                    transform.rotation = Quaternion.Lerp(cachedSimulationState.rotation, activeServerState.rotation, rotationMultiplier);
+                    transform.rotation = activeServerState.rotation;
 
                     Physics.SyncTransforms();
 
@@ -294,6 +302,8 @@ namespace ShardStudios {
 
                         ++rewindTick;
                     }
+
+                    transform.rotation = currentRotation;
                 }
 
                 lastReconciledFrame = activeServerState.tick;
