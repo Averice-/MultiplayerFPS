@@ -39,9 +39,9 @@ namespace ShardStudios {
         [SerializeField] Transform hands;
         [SerializeField] Transform[] attachmentSlots;
         [SerializeField] Transform eyes;
-        
-        void Start(){
-            owner = Player.GetById(GetComponent<NetworkedPlayer>().ownerId);
+
+        public void SetOwner(Player player){
+            owner = player;
         }
 
         #if SERVER
@@ -103,6 +103,7 @@ namespace ShardStudios {
             }
             equipment.Add(item.slotType, item);
             item.OnPickup(owner);
+            item.SetOwner(owner);
             item.SetEyePosition(eyes);
 
             if( (int)item.slotType == selectedEquipment ){

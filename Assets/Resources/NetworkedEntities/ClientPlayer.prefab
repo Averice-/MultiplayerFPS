@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 5605171335681519983}
   - component: {fileID: 5307772760663979004}
   - component: {fileID: 6873364137926941993}
+  - component: {fileID: 2116901449171979339}
   m_Layer: 0
   m_Name: ClientPlayer
   m_TagString: Untagged
@@ -344,3 +345,30 @@ MonoBehaviour:
   - {fileID: 2973765337055684418}
   - {fileID: 3149968181541415859}
   eyes: {fileID: 997195908775696526}
+--- !u!114 &2116901449171979339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5307772760663978758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55c8cc2534d4f634fa1c6e182f46282e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  health: 100
+  canRegen: 1
+  regenDelay: 5
+  regenAmountPerSecond: 10
+  owner: {fileID: 5605171335681519983}
+  OnHealthZero:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTakeDamage:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRegenStart:
+    m_PersistentCalls:
+      m_Calls: []

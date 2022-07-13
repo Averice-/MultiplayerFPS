@@ -49,6 +49,10 @@ namespace ShardStudios {
 
             }
 
+            public static void Detach(){
+                Instance.transform.parent = null;
+            }
+
         #endif
     }
 

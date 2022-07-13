@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using RiptideNetworking;
 
@@ -21,6 +22,7 @@ namespace ShardStudios {
         public bool lastPrimaryAttackMessage = false;
         public bool lastSecondaryAttackMessage = false;
         public EquipmentManager equipment;
+        public Health health;
 
         public Player(ushort id, string name = "nigger"){
 
@@ -61,7 +63,7 @@ namespace ShardStudios {
 
                     NetworkManager.GameServer.Server.Send(message, id);
 
-                    if( player.Value.isAlive || player.Key != id ){
+                    if( player.Value.isAlive && player.Key != id ){
 
                         Message spawnMessage = Message.Create(MessageSendMode.reliable, MessageID.PlayerSpawned);
                         spawnMessage.AddUShort(player.Key);
@@ -76,8 +78,15 @@ namespace ShardStudios {
             }
 
             public void Spawn(Vector3 position, Quaternion rotation){
+
                 playerObject = (NetworkedPlayer)NetworkedEntity.Create("ClientPlayer", position, rotation, this.id);
+
                 equipment = playerObject.GetComponent<EquipmentManager>();
+                equipment.SetOwner(this);
+
+                health = playerObject.GetComponent<Health>();
+                health.OnHealthZero.AddListener(PlayerKilledPlayer);
+                health.OnTakeDamage.AddListener(PlayerTakeDamage);
 
                 isAlive = true;
 
@@ -90,18 +99,15 @@ namespace ShardStudios {
                 GameMode.Game.OnPlayerSpawn(this);
             }
 
-            public void Kill(){
-                playerObject.DestroyNetworkedEntity();
-            }
-
             [MessageHandler((ushort)MessageID.PlayerReady)]
             public static void PlayerReady(ushort from, Message message){
+
                 NetworkedEntity.Broadcast(from); // all spawned networked entities.
                 Player newPlayer = new Player(from, message.GetString()); // all connected players will be broadcast to me.
                 GameMode.Game.PlayerJoined(newPlayer); // call gamemode playerjoined for functionality.
                 EquipmentManager.Broadcast(from); // all player weapons and selected weapon
 
-                playerList[from].Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity); // TEMP
+                //playerList[from].Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity); // TEMP
             }
 
             public static void NetworkGiveMessage(Player player, string equipmentName){
@@ -112,7 +118,6 @@ namespace ShardStudios {
                 message.AddString(equipmentName);
 
                 NetworkManager.GameServer.Server.SendToAll(message);
-                Debug.Log("Give message sent.");
 
             }
 
@@ -136,11 +141,22 @@ namespace ShardStudios {
 
             [MessageHandler((ushort)MessageID.PlayerSpawned)]
             public static void PlayerSpawned(Message message){
+
                 Player spawnedPlayer = GetById(message.GetUShort());
+
                 spawnedPlayer.playerObject = (NetworkedPlayer)NetworkedEntity.GetEntityById(message.GetUInt());
+
                 spawnedPlayer.equipment = spawnedPlayer.playerObject.GetComponent<EquipmentManager>();
+                spawnedPlayer.equipment.SetOwner(spawnedPlayer);
+
+                spawnedPlayer.health = spawnedPlayer.playerObject.GetComponent<Health>();
+                spawnedPlayer.health.OnHealthZero.AddListener(spawnedPlayer.PlayerKilledPlayer);
+                spawnedPlayer.health.OnTakeDamage.AddListener(spawnedPlayer.PlayerTakeDamage);
+
+
                 GameMode.Game.OnPlayerSpawn(spawnedPlayer);
                 spawnedPlayer.isAlive = true;
+
                 if( spawnedPlayer.isLocalPlayer ){
                     CameraController.SetPlayer(spawnedPlayer);
                     // Setup camera.
@@ -153,17 +169,31 @@ namespace ShardStudios {
                 bool isAttacking = message.GetByte() == (byte)1;
                 player.PrimaryAttack(isAttacking);
             }
-
             
 
         #endif
 
+        public void PlayerTakeDamage(Player attacker, float damage){
+            Debug.Log($"Player[{id}] damaged[{damage}] by Player[{attacker.id}]");
+        }
+
+        public void PlayerKilledPlayer(Player attacker){
+            GameMode.Game.OnPlayerDeath(this);
+            if( attacker != null )
+                GameMode.Game.PlayerKilledPlayer(this, attacker);
+
+            Kill();
+        }
 
         public static Player GetById(ushort id){
             if( playerList.ContainsKey(id) ){
                 return playerList[id];
             }
             return null;
+        }
+
+        public static List<Player> GetAll(){
+            return playerList.Values.ToList();
         }
 
         public void Give(string item){
@@ -179,6 +209,9 @@ namespace ShardStudios {
         }
 
         public void PrimaryAttack(bool isAttacking = true){
+            if( !isAlive )
+                return;
+
             if( isAttacking == lastPrimaryAttackMessage )
                 return;
 
@@ -196,6 +229,24 @@ namespace ShardStudios {
                     #endif
                 }
             }
+        }
+
+        public void Kill(){
+
+            #if !SERVER
+                if( this.isLocalPlayer ){
+                    CameraController.Detach();
+                }
+            #endif
+
+            playerObject.DestroyNetworkedEntity();
+            playerObject = null;
+            equipment = null;
+            health = null;
+            isAlive = false;
+            lastPrimaryAttackMessage = false;
+            lastSecondaryAttackMessage = false;
+            
         }
 
         

@@ -31,7 +31,8 @@ namespace ShardStudios {
         PlayerGiveItem,
         PlayerPrimaryAttacked,
         PlayerChangeWeapon,
-        PlayerUpdateSelectedWeapon
+        PlayerUpdateSelectedWeapon,
+        EntityTakeDamage
     }
 
     public class NetworkManager : MonoBehaviour

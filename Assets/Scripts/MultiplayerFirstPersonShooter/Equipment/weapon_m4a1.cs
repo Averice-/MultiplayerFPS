@@ -36,7 +36,7 @@ namespace ShardStudios {
             }
 
             if( isShooting && lastShotTime <= 0f && canShoot ){
-                Bullet shot = new Bullet(eyePosition.position, eyePosition.forward);
+                Bullet shot = new Bullet(owner, eyePosition.position, eyePosition.forward, damageAmount);
                 #if !SERVER
                     PlayShootSFX();
                 #endif

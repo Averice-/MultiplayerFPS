@@ -19,6 +19,9 @@ namespace ShardStudios {
 
                 foreach(KeyValuePair<uint, Queue<InputState>> inputs in clientInputs){
                     
+                    if( !NetworkedEntity.Entities.ContainsKey(inputs.Key) )
+                        continue;
+                        
                     NetworkedPlayer networkedEntity = (NetworkedPlayer)NetworkedEntity.Entities[inputs.Key];
                     MovementController movementController = networkedEntity.movementController;
 

@@ -7,10 +7,13 @@ namespace ShardStudios {
     public class BaseGameMode : GameMode
     {
 
-        private const int playersToStart = 1;
+        private const int playersToStart = 2;
 
         private bool hasStarted = false;
         private int playersReady = 0;
+        private int playersAlive = 0;
+
+        private float spawnTime = 3f;
 
         public override void Start(){
             base.Start();
@@ -23,10 +26,21 @@ namespace ShardStudios {
                 hasStarted = true;
                 RoundStart();             
             }
+
+            #if SERVER
+            
+            #endif
         }
 
         public override void RoundStart(){
             base.RoundStart();
+            playersAlive = 0;
+
+            #if SERVER
+                foreach( Player ply in Player.GetAll() ){
+                    ply.Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+                }
+            #endif
 
             Debug.Log($"Started Round[{gameName}]");
         }
@@ -41,11 +55,30 @@ namespace ShardStudios {
         }
 
         public override void OnPlayerSpawn(Player player){
+            playersAlive++;
             #if SERVER
                 player.Give("weapon_m4a1");
                 player.Give("weapon_pistol");
             #endif
         }
+
+        public override void OnPlayerDeath(Player player){
+            playersAlive--;
+            #if SERVER
+                NetworkManager.Instance.StartCoroutine(Respawn(player));
+            #endif
+        }
+
+        #if SERVER
+
+            IEnumerator Respawn(Player player){
+
+                yield return new WaitForSeconds(spawnTime);
+                player.Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+
+            }
+
+        #endif
 
         // Give player weapons to other players.
 

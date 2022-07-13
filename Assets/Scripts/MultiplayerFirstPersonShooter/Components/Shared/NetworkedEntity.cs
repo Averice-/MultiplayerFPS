@@ -139,10 +139,6 @@ namespace ShardStudios {
             List<NetworkedEntity> playerOwnedEntities = GetEntitiesOfOwner(id);
             foreach( NetworkedEntity entity in playerOwnedEntities ){
                 entity.DestroyNetworkedEntity();
-                #if SERVER
-                    SimulatedObjectHandler.clientInputs.Remove(entity.id);
-                    SimulatedObjectHandler.simulationStates.Remove(entity.id);
-                #endif
             }
         }
 
@@ -161,6 +157,10 @@ namespace ShardStudios {
 
         public void DestroyNetworkedEntity(){
             Entities.Remove(id);
+            #if SERVER
+                SimulatedObjectHandler.clientInputs.Remove(id);
+                SimulatedObjectHandler.simulationStates.Remove(id);
+            #endif
             Destroy(this.gameObject);
         }
 
