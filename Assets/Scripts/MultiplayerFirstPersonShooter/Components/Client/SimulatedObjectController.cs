@@ -52,8 +52,8 @@ namespace ShardStudios {
             
             // private static uint id;
             // interpolating settings.
-            private static float interpolationMultiplier = 0.35f;
-            private static float rotationMultiplier = 0.28f;
+            private static float interpolationMultiplier = 0.7f;
+            private static float rotationMultiplier = 0.3f;
             private static float snapThreshold = 0.1f;
 
             private static float toleranceMagnitude = snapThreshold * snapThreshold;
@@ -78,7 +78,7 @@ namespace ShardStudios {
                 moveAxis = inputController.GetMoveAxis();
                 lookAxis = inputController.GetLookAxis();
 
-                movementController.SetLookAngle(lookAxis);
+                //movementController.SetLookAngle(lookAxis);
 
                 activeInputState = new InputState {
                     input = moveAxis,
@@ -211,6 +211,7 @@ namespace ShardStudios {
                     activeInputState.jumping = (byte)1;
                 }
 
+                movementController.SetLookAngle(lookAxis);
                 movementController.AddForce(new Vector3(moveAxis.x, 0f, moveAxis.y).normalized);
                 networkedEntity.GetOwner().PrimaryAttack(activeInputState.primaryAttack == (byte)1);
 
@@ -304,6 +305,7 @@ namespace ShardStudios {
                     }
 
                     transform.rotation = currentRotation;
+                    Physics.SyncTransforms();
                 }
 
                 lastReconciledFrame = activeServerState.tick;

@@ -4,6 +4,14 @@ using UnityEngine;
 
 namespace ShardStudios {
 
+    public enum EquipmentSound {
+        Equip = 0,
+        Shoot,
+        Secondary,
+        Reload,
+        Unequip
+    }
+
     public class EquipmentItem : MonoBehaviour
     {
         [Header("Equipment Settings")]
@@ -15,11 +23,18 @@ namespace ShardStudios {
         public float equipShootDelay = 0.3f;
         public float damageAmount = 35f;
 
-        [Space(10)]
-        [Header("ViewModel Settings")]
-        public GameObject viewModel;
-        public Vector3 positionOffset;
-        public Quaternion rotationOffset;
+        #if !SERVER
+            [Space(10)]
+            [Header("ViewModel Settings")]
+            public GameObject viewModel;
+            public Vector3 positionOffset;
+            public Quaternion rotationOffset;
+
+            [Space(10)]
+            [Header("Sounds")]
+            [SerializeField] AudioSource audioSource;
+            [SerializeField] AudioClip[] audioClips = new AudioClip[5];
+        #endif
 
         protected bool isShooting = false;
         protected bool canShoot = true;
@@ -32,6 +47,15 @@ namespace ShardStudios {
         public void SetEyePosition(Transform eyePos){
             eyePosition = eyePos;
         }
+
+        #if !SERVER
+            public void PlaySound(EquipmentSound equipmentSound){
+                int soundIndex = (int)equipmentSound;
+                if( audioClips[soundIndex] != null ){
+                    audioSource.PlayOneShot(audioClips[soundIndex]);
+                }
+            }
+        #endif
 
         public void SetOwner(Player player){
             owner = player;

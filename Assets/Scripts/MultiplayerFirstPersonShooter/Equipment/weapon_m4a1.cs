@@ -7,21 +7,6 @@ namespace ShardStudios {
 
     public class weapon_m4a1 : EquipmentItem
     {
-        
-        #if !SERVER
-
-            AudioSource audioSource;
-
-            void Awake(){
-                audioSource = GetComponent<AudioSource>();
-            }
-
-            void PlayShootSFX(){
-                audioSource.Stop();
-                audioSource.Play();
-            }
-
-        #endif
 
         public override void OnPrimaryAttack(bool isAttacking = true){
             isShooting = isAttacking;
@@ -38,7 +23,7 @@ namespace ShardStudios {
             if( isShooting && lastShotTime <= 0f && canShoot ){
                 Bullet shot = new Bullet(owner, eyePosition.position, eyePosition.forward, damageAmount);
                 #if !SERVER
-                    PlayShootSFX();
+                    PlaySound(EquipmentSound.Shoot);
                 #endif
                 lastShotTime = shotDelay;
             }else if( lastShotTime > 0f){
@@ -48,6 +33,9 @@ namespace ShardStudios {
         }
 
         public override void OnEquip(){
+            #if !SERVER
+                PlaySound(EquipmentSound.Equip);
+            #endif
             equipTime = equipShootDelay;
             canShoot = false;
         }

@@ -47,6 +47,12 @@ namespace ShardStudios {
 
         public override void PlayerJoined(Player player){
             Debug.Log($"Player[{player.id}][{player.name}] connected to the server.");
+
+            #if SERVER
+                if( hasStarted ){
+                    ply.Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+                }
+            #endif
             playersReady++;
         }
 

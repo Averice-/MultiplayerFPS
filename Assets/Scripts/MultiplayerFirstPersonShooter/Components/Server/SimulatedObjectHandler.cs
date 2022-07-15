@@ -45,8 +45,8 @@ namespace ShardStudios {
                             //movementController.Move();
 
                             //Physics.SyncTransforms();
-
-                            UpdateOwnState(networkedEntity, inputState.tick);
+                            if( NetworkManager.tick % 2 == 0)
+                                UpdateOwnState(networkedEntity, inputState.tick);
 
                         }
                     }
