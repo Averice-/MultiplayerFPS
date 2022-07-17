@@ -120,6 +120,7 @@ namespace ShardStudios {
             if( slot != null ){
                 item.transform.position = slot.position;
                 item.transform.rotation = slot.rotation;
+                item.transform.parent = slot;
             }
             if( GetEquippedItem() == item ){
                 item.OnUnequip();
@@ -146,6 +147,7 @@ namespace ShardStudios {
                 }
                 itemToEquip.transform.position = hands.position;
                 itemToEquip.transform.rotation = hands.rotation;
+                itemToEquip.transform.parent = hands;
                 itemToEquip.OnEquip();
 
                 return true;

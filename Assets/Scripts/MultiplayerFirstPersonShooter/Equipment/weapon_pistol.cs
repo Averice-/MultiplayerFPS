@@ -36,7 +36,7 @@ namespace ShardStudios {
                 canShoot = true;
             }
 
-            if( lastShotTime <= 0f ){
+            if( lastShotTime >= 0f ){
                 lastShotTime -= Time.deltaTime;
             }
         }

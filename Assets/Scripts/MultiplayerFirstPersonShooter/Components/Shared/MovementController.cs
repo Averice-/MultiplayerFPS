@@ -25,6 +25,11 @@ namespace ShardStudios {
         public float distanceToGround = 1f;
         public float mouseSensitivity = 30f;
 
+        [Space(10)]
+        [Header("First Person Settings")]
+        public bool isFpsCharacter = false;
+        public Transform eyePosition;
+
         public Vector3 velocity {
             get => _velocity;
             set {
@@ -62,11 +67,25 @@ namespace ShardStudios {
             return _velocity * Time.fixedDeltaTime;
         }
 
+        // SETTINGS TO MAKE SO FAR;
+        // VOLUME; slider
+        // SENSITIVITY; slider
+        // INVERT MOUSE Y; checkbox
+
         public void SetLookAngle(Vector2 lookAxis){
             lookAngle = transform.rotation.eulerAngles;
 
             lookAngle.x = lookAxis.y * mouseSensitivity;
             lookAngle.y = lookAxis.x * mouseSensitivity;
+
+            if( isFpsCharacter ) {// Check Inverted setting.
+                float rotationX = eyePosition.eulerAngles.x + -lookAngle.x;
+                if( rotationX > 180 ){
+                    rotationX -= 360;
+                }
+                rotationX = Mathf.Clamp(rotationX, -88f, 88f);
+                eyePosition.rotation = Quaternion.Euler(rotationX, eyePosition.eulerAngles.y, eyePosition.eulerAngles.z);
+            }
 
             transform.Rotate(new Vector3(0f, lookAngle.y, 0f));
         }
@@ -79,7 +98,7 @@ namespace ShardStudios {
         }
 
         void FixedUpdate(){
-            isGrounded = Physics.Raycast(transform.position, -transform.up, distanceToGround + 0.1f);
+            isGrounded = Physics.Raycast(transform.position, -transform.up, distanceToGround + 0.15f);
             Move();
         }
     }

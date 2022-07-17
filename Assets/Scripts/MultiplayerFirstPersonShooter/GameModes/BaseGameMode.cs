@@ -50,7 +50,7 @@ namespace ShardStudios {
 
             #if SERVER
                 if( hasStarted ){
-                    ply.Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+                    player.Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
                 }
             #endif
             playersReady++;
@@ -65,6 +65,9 @@ namespace ShardStudios {
             #if SERVER
                 player.Give("weapon_m4a1");
                 player.Give("weapon_pistol");
+            #else
+                if( player.isLocalPlayer )
+                    Cursor.lockState = CursorLockMode.Locked;
             #endif
         }
 
@@ -85,8 +88,6 @@ namespace ShardStudios {
             }
 
         #endif
-
-        // Give player weapons to other players.
 
     }
 

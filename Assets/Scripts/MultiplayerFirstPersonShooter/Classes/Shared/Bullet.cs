@@ -37,6 +37,11 @@ namespace ShardStudios {
 
                 if( hitInfo.hitPlayer ){
                     Debug.Log($"Bullet hit Player[{hitInfo.player.id}]");
+                }else{
+                    #if !SERVER
+                        DecalManager.Decal(rayHit.point, rayHit.normal, new Vector2(Random.Range(0, 3), 3));
+                    #endif
+
                 }
             }
 

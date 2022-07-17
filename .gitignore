@@ -7,7 +7,8 @@
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
-/ServerBuilds/
+/[Ss]erver[Bb]uilds/
+/[Cc]lient[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
@@ -71,3 +72,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Paid assets.
+/[Aa]ssets/[Bb]ullet_[Hh]oles/
