@@ -13,10 +13,10 @@ namespace ShardStudios {
 
         public Bullet(Player owner, Vector3 pos, Vector3 direction, float damage, float distance = 2500f, float penetrationForce = 0f){
             
-            Debug.Log($"Bullet owner[{owner.id}]");
             RaycastHit rayHit;
-            #if !SERVER
-                Debug.DrawRay(pos, direction * 10, Color.green, 1, false);
+            #if SERVER
+                 LagCompensation.BeginCompensation(NetworkManager.tick, (uint)NetworkManager.frameDifference);
+                    
             #endif
             if( Physics.Raycast(pos, direction, out rayHit, distance) ){
 
@@ -39,11 +39,14 @@ namespace ShardStudios {
                     Debug.Log($"Bullet hit Player[{hitInfo.player.id}]");
                 }else{
                     #if !SERVER
-                        DecalManager.Decal(rayHit.point, rayHit.normal, new Vector2(Random.Range(0, 3), 3));
+                        DecalManager.Decal("BulletDecal", rayHit.point, rayHit.normal, new Vector2(Random.Range(0, 3), 3));
                     #endif
 
                 }
             }
+             #if SERVER
+                 LagCompensation.EndCompensation();
+             #endif
 
         }
     }

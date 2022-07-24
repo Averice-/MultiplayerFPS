@@ -7,7 +7,7 @@ namespace ShardStudios {
     public class BaseGameMode : GameMode
     {
 
-        private const int playersToStart = 2;
+        private const int playersToStart = 1;
 
         private bool hasStarted = false;
         private int playersReady = 0;

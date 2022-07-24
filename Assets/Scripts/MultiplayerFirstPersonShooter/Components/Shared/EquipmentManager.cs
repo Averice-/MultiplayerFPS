@@ -16,7 +16,8 @@ namespace ShardStudios {
         Objective,
         Misc1,
         Misc2,
-        Misc3
+        Misc3,
+        None
     }
 
     public class EquipmentManager : MonoBehaviour
@@ -40,8 +41,11 @@ namespace ShardStudios {
         [SerializeField] Transform[] attachmentSlots;
         [SerializeField] Transform eyes;
 
+        public AnimationHandler handler;
+
         public void SetOwner(Player player){
             owner = player;
+            handler = player.handler;
         }
 
         #if SERVER
@@ -145,10 +149,16 @@ namespace ShardStudios {
                 if( equipped != null ){
                     HolsterItem(equipped);
                 }
-                itemToEquip.transform.position = hands.position;
-                itemToEquip.transform.rotation = hands.rotation;
-                itemToEquip.transform.parent = hands;
-                itemToEquip.OnEquip();
+
+                if( slot != EquipmentSlot.None ){ // Bare hands.
+
+                    itemToEquip.transform.position = hands.position;
+                    itemToEquip.transform.rotation = hands.rotation;
+                    itemToEquip.transform.parent = hands;
+                    itemToEquip.OnEquip();
+                    handler.EquipAnim(itemToEquip.weaponAnimType);
+
+                }
 
                 return true;
 

@@ -22,6 +22,7 @@ namespace ShardStudios {
         }
 
         private DefaultActions defaultActions;
+        private AnimationHandler handler;
 
         private bool isJumpingThisFrame = false;
         private bool isPrimaryAttack = false;
@@ -58,6 +59,10 @@ namespace ShardStudios {
             return equipmentSlotButton;
         }
 
+        public void SetAnimationHandler(AnimationHandler animHandler){
+            handler = animHandler;
+        }
+
         public bool GetJumpingStatus(){
             if( isJumpingThisFrame ){
                 isJumpingThisFrame = false;
@@ -67,7 +72,10 @@ namespace ShardStudios {
         }
 
         public Vector2 GetMoveAxis(){
-            return defaultActions.PlayerMovement.Move.ReadValue<Vector2>();
+            Vector2 axis = defaultActions.PlayerMovement.Move.ReadValue<Vector2>();
+            handler.animator.SetFloat("RunningForward", axis.y);
+            handler.animator.SetFloat("RunningRight", axis.x);
+            return axis;
         }
 
         public Vector2 GetLookAxis(){

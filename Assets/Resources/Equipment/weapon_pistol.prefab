@@ -28,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8156053319905767287}
   m_Father: {fileID: 0}
@@ -48,10 +49,12 @@ MonoBehaviour:
   slotType: 1
   equipmentName: Pistol
   codeName: weapon_pistol
+  weaponAnimType: EquipHandgun
   price: 450
   shotDelay: 0.3
   equipShootDelay: 0.18
   damageAmount: 19
+  crosshairName: CrosshairDefault
   viewModel: {fileID: 0}
   positionOffset: {x: 0, y: 0, z: 0}
   rotationOffset: {x: 0, y: 0, z: 0, w: 0}
@@ -163,6 +166,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 2
     m_TransformParent: {fileID: 413111503839927709}
     m_Modifications:
     - target: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
@@ -226,6 +230,7 @@ PrefabInstance:
       value: gune  2.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
 --- !u!4 &8156053319905767287 stripped
 Transform:

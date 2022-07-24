@@ -1,30 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace ShardStudios {
 
     public class Decal : MonoBehaviour
     {
-        
-        [SerializeField] MeshRenderer meshRenderer;
+        // Now using URP Decal Projector;
+        [SerializeField] DecalProjector decalProjector;
 
-        Material decalMaterial;
-        float lifeTime = 5f;
+        [SerializeField] float lifeTime = 5f;
+        [SerializeField] float offsetMultiplier = 0.25f;
         float timeLeft = 0f;
 
-        void Awake(){
-
-            //#if UNITY_EDITOR
-            //    decalMaterial = meshRenderer.sharedMaterial;
-            //#else
-                decalMaterial = meshRenderer.material;
-            //#endif
-
-        }
-
         public void SetOffset(Vector2 offsetVector){
-            decalMaterial.mainTextureOffset = offsetVector * 0.25f;
+            decalProjector.uvBias = offsetVector * offsetMultiplier;
         }
 
         public void MakeAlive(){

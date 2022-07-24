@@ -15,6 +15,8 @@ namespace ShardStudios {
             public static Dictionary<uint, Queue<InputState>> clientInputs = new Dictionary<uint, Queue<InputState>>();
             public static Dictionary<uint, SimulationState[]> simulationStates = new Dictionary<uint, SimulationState[]>();
 
+            public static List<uint> killables = new List<uint>();
+
             private void FixedUpdate(){
 
                 foreach(KeyValuePair<uint, Queue<InputState>> inputs in clientInputs){
@@ -39,13 +41,18 @@ namespace ShardStudios {
                                 movementController.Jump();
                             }
                             
-                            movementController.transform.rotation = inputState.rotation;
+                            //movementController.transform.rotation = inputState.rotation;
+                            movementController.SetLookAngleFromVector2(inputState.rotation);
                             movementController.AddForce(new Vector3( inputState.input.x, 0f, inputState.input.y).normalized);
-                            networkedEntity.GetOwner().PrimaryAttack(inputState.primaryAttack == (byte)1);
-                            //movementController.Move();
 
+                            Player entityOwner = networkedEntity.GetOwner();
+                            NetworkManager.CalculateTickDifference(entityOwner.id);
+                            entityOwner.PrimaryAttack(inputState.primaryAttack == (byte)1);
+                           
+                            //movementController.Move();
                             //Physics.SyncTransforms();
-                            if( NetworkManager.tick % 2 == 0)
+
+                            if( NetworkManager.tick % 2 == 0 )
                                 UpdateOwnState(networkedEntity, inputState.tick);
 
                         }
@@ -54,13 +61,21 @@ namespace ShardStudios {
                     SimulationState simulationState = new SimulationState {
                         position = networkedEntity.transform.position,
                         velocity = movementController.velocity,
-                        rotation = networkedEntity.transform.rotation,
+                        rotation = movementController.GetLookAngle(), //networkedEntity.transform.rotation,
                         tick = NetworkManager.tick
                     };
 
                     simulationStates[inputs.Key][NetworkManager.tick % CACHE_SIZE] = simulationState;
 
                 }
+
+                if( killables.Count > 0 ){
+                    for( int i = 0; i < killables.Count; i++ ){
+                        clientInputs.Remove(killables[i]);
+                        simulationStates.Remove(killables[i]);
+                    }
+                }
+                killables.Clear();
 
                 if( NetworkManager.tick % 2 == 0 ){
                     UpdateSimulationStateAllPlayers();
@@ -76,7 +91,8 @@ namespace ShardStudios {
                 message.AddUInt(networkedEntity.id);
                 message.AddVector3(networkedEntity.transform.position);
                 message.AddVector3(networkedEntity.movementController.velocity);
-                message.AddQuaternion(networkedEntity.transform.rotation);
+                message.AddVector2(networkedEntity.movementController.GetLookAngle());
+                //message.AddQuaternion(networkedEntity.transform.rotation);
                 message.AddUInt(tick);
 
                 NetworkManager.GameServer.Server.Send(message, networkedEntity.ownerId);
@@ -94,7 +110,8 @@ namespace ShardStudios {
                         message.AddUInt(entity.Key);
                         message.AddVector3(player.transform.position);
                         message.AddVector3(player.movementController.velocity);
-                        message.AddQuaternion(player.transform.rotation);
+                        //message.AddQuaternion(player.transform.rotation);
+                        message.AddVector2(player.movementController.GetLookAngle());
                         message.AddUInt(NetworkManager.tick);
                         
                         NetworkManager.GameServer.Server.SendToAll(message, player.ownerId);
@@ -111,7 +128,7 @@ namespace ShardStudios {
                 uint id = message.GetUInt();
                 InputState receivedInputState = new InputState{
                     input = message.GetVector2(),
-                    rotation = message.GetQuaternion(),
+                    rotation = message.GetVector2(), //message.GetQuaternion(),
                     jumping = message.GetByte(),
                     primaryAttack = message.GetByte(),
                     secondaryAttack = message.GetByte(),

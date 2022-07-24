@@ -15,8 +15,11 @@ namespace ShardStudios {
 
                 if( lastShotTime <= 0f && canShoot && !hasShot ){
                     Bullet shot = new Bullet(owner, eyePosition.position, eyePosition.forward, damageAmount);
+                    owner.handler.animator.SetTrigger("Shoot");
                     #if !SERVER
                         PlaySound(EquipmentSound.Shoot);
+                        if( owner.isLocalPlayer )
+                            crosshair.SpreadCrosshair();
                     #endif
                     lastShotTime = shotDelay;
                     hasShot = true;
@@ -44,6 +47,8 @@ namespace ShardStudios {
         public override void OnEquip(){
             #if !SERVER
                 PlaySound(EquipmentSound.Equip);
+                if( owner.isLocalPlayer )
+                    CreateCrosshair();
             #endif
             equipTime = equipShootDelay;
             canShoot = false;

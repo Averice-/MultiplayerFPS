@@ -18,10 +18,12 @@ namespace ShardStudios {
         public EquipmentSlot slotType = EquipmentSlot.Primary;
         public string equipmentName = "M4A1";
         public string codeName = "weapon_m4a1";
+        public string weaponAnimType = "EquipAssaultRifle";
         public uint price = 3100;
         public float shotDelay = 0.1f;
         public float equipShootDelay = 0.3f;
         public float damageAmount = 35f;
+        public string crosshairName = "CrosshairDefault";
 
         #if !SERVER
             [Space(10)]
@@ -41,6 +43,7 @@ namespace ShardStudios {
         protected float lastShotTime = 0f;
         protected float equipTime = 0f;
         protected Player owner;
+        protected Crosshair crosshair;
 
         protected Transform eyePosition;
 
@@ -88,6 +91,12 @@ namespace ShardStudios {
 
         public virtual void OnPickup(Player player){
         }
+
+        #if !SERVER
+            public virtual void CreateCrosshair(){
+                crosshair = PlayerHud.CreateCrosshair(crosshairName);
+            }
+        #endif
 
     }
 

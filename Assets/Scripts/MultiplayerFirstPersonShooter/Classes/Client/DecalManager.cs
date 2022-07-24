@@ -7,17 +7,17 @@ namespace ShardStudios {
     public static class DecalManager
     {
 
-        static int poolSize = 30;
+        static int poolSize = 60;
         static Decal[] decalPool = new Decal[poolSize];
 
         static int initializedDecals = 0;
         static int lastDecalUsed = 0;
 
-        public static void Decal(Vector3 position, Vector3 normal, Vector2 offset){
+        public static void Decal(string decalName, Vector3 position, Vector3 normal, Vector2 offset){
 
             if( initializedDecals < poolSize ){
 
-                GameObject newDecal = (GameObject)NetworkManager.Instantiate(Resources.Load("Effects/BulletDecal"), position, Quaternion.identity);
+                GameObject newDecal = (GameObject)NetworkManager.Instantiate(Resources.Load($"Effects/{decalName}"), position, Quaternion.identity);
                 decalPool[lastDecalUsed] = newDecal.GetComponent<Decal>();
                 initializedDecals++;
 
@@ -25,8 +25,11 @@ namespace ShardStudios {
 
             Decal usingDecal = decalPool[lastDecalUsed];
 
-            usingDecal.transform.up = normal;
-            usingDecal.transform.position = position + normal * 0.001f; // A bit above the surface to stop z-fighting.
+            usingDecal.transform.forward = normal;
+            usingDecal.transform.position = position;// - normal * 0.001f; // A bit into the surface so the projector works.
+
+            float randomSpin = Random.Range(-180f, 180f);
+            usingDecal.transform.Rotate(0, 0, randomSpin, Space.Self);
             usingDecal.SetOffset(offset);
 
 

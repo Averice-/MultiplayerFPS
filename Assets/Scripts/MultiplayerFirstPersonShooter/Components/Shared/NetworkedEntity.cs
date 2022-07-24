@@ -158,8 +158,9 @@ namespace ShardStudios {
         public void DestroyNetworkedEntity(){
             Entities.Remove(id);
             #if SERVER
-                SimulatedObjectHandler.clientInputs.Remove(id);
-                SimulatedObjectHandler.simulationStates.Remove(id);
+                SimulatedObjectHandler.killables.Add(id);
+                // SimulatedObjectHandler.clientInputs.Remove(id);
+                // SimulatedObjectHandler.simulationStates.Remove(id);
             #endif
             Destroy(this.gameObject);
         }

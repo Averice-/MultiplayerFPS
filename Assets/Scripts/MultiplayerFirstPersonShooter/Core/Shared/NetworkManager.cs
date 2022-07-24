@@ -1,5 +1,6 @@
 using RiptideNetworking;
 using RiptideNetworking.Utils;
+using RiptideNetworking.Transports;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -67,6 +68,7 @@ namespace ShardStudios {
         #endif
 
         public ushort port = 7777;
+        public static short frameDifference;
         
 
         void Awake(){
@@ -97,6 +99,33 @@ namespace ShardStudios {
             #endif
 
 
+        }
+
+        #if SERVER
+            public static IConnectionInfo GetClientById(ushort id){
+                for( int i = 0; i < GameServer.Server.Clients.Length; i ++ ){
+                    if( GameServer.Server.Clients[i].Id == id ){
+                        return GameServer.Server.Clients[i];
+                    }
+                }
+                return null;
+            }
+        #endif
+
+        public static void CalculateTickDifference(ushort id = 0){
+            short rtt = -1;
+            #if SERVER
+                IConnectionInfo clientById = GetClientById(id);
+                if( clientById != null ){
+                    rtt = clientById.SmoothRTT;
+                }
+            #else
+                rtt = GameClient.Client.SmoothRTT;
+            #endif
+            if( rtt < 0 ){
+              frameDifference = 0;
+            }
+            frameDifference = (short)Mathf.Ceil(rtt / (Time.fixedDeltaTime * 1000));
         }
 
         public static void Ready(){
@@ -146,7 +175,7 @@ namespace ShardStudios {
         #else
             [MessageHandler((ushort)MessageID.UpdateTick)]
             private static void UpdateTick(Message message){
-                tick = message.GetUInt();
+                tick = message.GetUInt() + (uint)Mathf.Ceil(frameDifference / 2);
             }
         #endif
 

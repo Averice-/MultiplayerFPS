@@ -23,6 +23,7 @@ namespace ShardStudios {
         public bool lastSecondaryAttackMessage = false;
         public EquipmentManager equipment;
         public Health health;
+        public AnimationHandler handler;
 
         public Player(ushort id, string name = "nigger"){
 
@@ -81,6 +82,8 @@ namespace ShardStudios {
 
                 playerObject = (NetworkedPlayer)NetworkedEntity.Create("ClientPlayer", position, rotation, this.id);
 
+                handler = playerObject.GetComponent<AnimationHandler>();
+
                 equipment = playerObject.GetComponent<EquipmentManager>();
                 equipment.SetOwner(this);
 
@@ -98,6 +101,7 @@ namespace ShardStudios {
 
                 GameMode.Game.OnPlayerSpawn(this);
             }
+
 
             [MessageHandler((ushort)MessageID.PlayerReady)]
             public static void PlayerReady(ushort from, Message message){
@@ -145,6 +149,10 @@ namespace ShardStudios {
                 Player spawnedPlayer = GetById(message.GetUShort());
 
                 spawnedPlayer.playerObject = (NetworkedPlayer)NetworkedEntity.GetEntityById(message.GetUInt());
+
+                spawnedPlayer.handler = spawnedPlayer.playerObject.GetComponent<AnimationHandler>();
+                if( spawnedPlayer.isLocalPlayer )
+                    InputController.Instance.SetAnimationHandler(spawnedPlayer.handler);
 
                 spawnedPlayer.equipment = spawnedPlayer.playerObject.GetComponent<EquipmentManager>();
                 spawnedPlayer.equipment.SetOwner(spawnedPlayer);

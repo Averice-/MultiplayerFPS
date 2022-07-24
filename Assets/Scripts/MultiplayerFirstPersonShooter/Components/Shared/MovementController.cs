@@ -29,6 +29,7 @@ namespace ShardStudios {
         [Header("First Person Settings")]
         public bool isFpsCharacter = false;
         public Transform eyePosition;
+        public AnimationHandler handler;
 
         public Vector3 velocity {
             get => _velocity;
@@ -39,6 +40,7 @@ namespace ShardStudios {
 
         void Start(){
             characterController = GetComponent<CharacterController>();
+            handler = GetComponent<AnimationHandler>();
         }
 
         public void AddForce(Vector3 force){
@@ -59,10 +61,11 @@ namespace ShardStudios {
             if( isGrounded ){
                 if( jumping ){
                     _velocity.y = jumpHeight * forceMultiplier;
-                }else{
-                    _velocity.y = gravity * Time.fixedDeltaTime;
+                }else if( _velocity.y <= 0f){
+                    _velocity.y = -2f;
                 }
             }
+            handler.animator.SetBool("InAir", !isGrounded);
 
             return _velocity * Time.fixedDeltaTime;
         }
@@ -90,6 +93,29 @@ namespace ShardStudios {
             transform.Rotate(new Vector3(0f, lookAngle.y, 0f));
         }
 
+        public Vector2 GetLookAngle(){
+            if( isFpsCharacter )
+                return new Vector2(eyePosition.eulerAngles.x, transform.eulerAngles.y);
+
+            return new Vector2(transform.eulerAngles.x, transform.eulerAngles.y);
+        }
+
+        public void SetLookAngleFromVector2(Vector2 angle){
+
+            if( isFpsCharacter ){
+                float rotationX = angle.x;
+                if( rotationX > 180 ){
+                    rotationX -= 360;
+                }
+                rotationX = Mathf.Clamp(rotationX, -88f, 88f);
+                eyePosition.rotation = Quaternion.Euler(rotationX, eyePosition.eulerAngles.y, eyePosition.eulerAngles.z);
+                transform.rotation = Quaternion.Euler(transform.eulerAngles.x, angle.y, transform.eulerAngles.z);
+                return;
+            }
+            transform.rotation = Quaternion.Euler(angle.x, angle.y, transform.eulerAngles.z);
+            
+        }
+
         public void Move(){
             Vector3 moveAxis = GetUsableVelocity(isJumpingThisFrame);
 
@@ -98,7 +124,8 @@ namespace ShardStudios {
         }
 
         void FixedUpdate(){
-            isGrounded = Physics.Raycast(transform.position, -transform.up, distanceToGround + 0.15f);
+            //isGrounded = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), distanceToGround + 0.15f);
+            isGrounded = Physics.SphereCast(new Ray(transform.position, transform.TransformDirection(Vector3.down)), 0.7f, .5f);
             Move();
         }
     }
