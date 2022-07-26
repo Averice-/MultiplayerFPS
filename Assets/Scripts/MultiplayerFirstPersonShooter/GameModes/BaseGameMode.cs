@@ -50,7 +50,7 @@ namespace ShardStudios {
 
             #if SERVER
                 if( hasStarted ){
-                    player.Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+                    Spawn(player);
                 }
             #endif
             playersReady++;
@@ -83,7 +83,7 @@ namespace ShardStudios {
             IEnumerator Respawn(Player player){
 
                 yield return new WaitForSeconds(spawnTime);
-                player.Spawn(new Vector3(0f, 1f, 0f), Quaternion.identity);
+                Spawn(player);
 
             }
 

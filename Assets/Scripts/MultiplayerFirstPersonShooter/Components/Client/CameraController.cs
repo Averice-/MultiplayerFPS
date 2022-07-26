@@ -35,6 +35,10 @@ namespace ShardStudios {
                 virtualCamera = GetComponent<CinemachineVirtualCamera>();
             }
 
+            public static Transform GetCameraTransform(){
+                return Instance.transform;
+            }
+
 
             public static void SetPlayer(Player player){
                 if( !player.isAlive )

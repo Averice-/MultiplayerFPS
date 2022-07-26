@@ -29,8 +29,8 @@ namespace ShardStudios {
             [Space(10)]
             [Header("ViewModel Settings")]
             public GameObject viewModel;
-            public Vector3 positionOffset;
-            public Quaternion rotationOffset;
+            public Vector3 positionOffset = new Vector3(0.3f, 0.1f, 0.7f);
+            public Quaternion rotationOffset = Quaternion.identity;
 
             [Space(10)]
             [Header("Sounds")]
@@ -58,10 +58,35 @@ namespace ShardStudios {
                     audioSource.PlayOneShot(audioClips[soundIndex]);
                 }
             }
+
+            public void PositionViewModel(){ // Eventually this will place weapon in viewmodel hands.
+                if( viewModel != null ){
+                    viewModel.SetActive(true);
+                    //Transform cameraTransform = CameraController.GetCameraTransform();
+                    if( viewModel.transform.parent != eyePosition ){
+
+                        viewModel.transform.position = eyePosition.position;
+                        viewModel.transform.localPosition += positionOffset;
+                        viewModel.transform.rotation = eyePosition.rotation;// + rotationOffset;
+                        viewModel.transform.parent = eyePosition; // First person camera controller.
+
+                    }
+                }
+            }
+
+            public void HideViewModel(){
+                if( viewModel != null ){
+                    viewModel.SetActive(false);
+                }
+            }
         #endif
 
         public void SetOwner(Player player){
             owner = player;
+        }
+
+        public Player GetOwner(){
+            return owner;
         }
 
         public virtual void OnPrimaryAttack(bool isAttacking = true){

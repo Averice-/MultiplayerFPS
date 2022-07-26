@@ -26,7 +26,7 @@ namespace ShardStudios {
             Decal usingDecal = decalPool[lastDecalUsed];
 
             usingDecal.transform.forward = normal;
-            usingDecal.transform.position = position;// - normal * 0.001f; // A bit into the surface so the projector works.
+            usingDecal.transform.position = position;// - normal * 0.001f; // A bit into the surface so the projector works. deprecated, using DecalProjector.
 
             float randomSpin = Random.Range(-180f, 180f);
             usingDecal.transform.Rotate(0, 0, randomSpin, Space.Self);

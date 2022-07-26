@@ -55,8 +55,8 @@ MonoBehaviour:
   equipShootDelay: 0.18
   damageAmount: 19
   crosshairName: CrosshairDefault
-  viewModel: {fileID: 0}
-  positionOffset: {x: 0, y: 0, z: 0}
+  viewModel: {fileID: 8156053319906194263}
+  positionOffset: {x: 0.2, y: -0.1, z: 0.8}
   rotationOffset: {x: 0, y: 0, z: 0, w: 0}
   audioSource: {fileID: 9050854317892096168}
   audioClips:
@@ -235,5 +235,10 @@ PrefabInstance:
 --- !u!4 &8156053319905767287 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8398005978397793674, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
+  m_PrefabInstance: {fileID: 413111504429200125}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8156053319906194263 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8398005978398081450, guid: 55e3a2be638f1104db3e78dca3944398, type: 3}
   m_PrefabInstance: {fileID: 413111504429200125}
   m_PrefabAsset: {fileID: 0}

@@ -73,8 +73,10 @@ namespace ShardStudios {
 
         public Vector2 GetMoveAxis(){
             Vector2 axis = defaultActions.PlayerMovement.Move.ReadValue<Vector2>();
-            handler.animator.SetFloat("RunningForward", axis.y);
-            handler.animator.SetFloat("RunningRight", axis.x);
+            if( handler != null )
+                handler.SetMovementFloats(axis);
+            // handler.animator.SetFloat("RunningForward", axis.y);
+            // handler.animator.SetFloat("RunningRight", axis.x);
             return axis;
         }
 

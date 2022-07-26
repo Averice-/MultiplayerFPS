@@ -49,6 +49,15 @@ namespace ShardStudios {
         public virtual void PlayerJoined(Player player){}
         public virtual void PlayerLeft(Player player){}
 
+        #if SERVER
+
+            public void Spawn(Player player){
+                SpawnPoint newSpawn = SpawnController.GetSpawn();
+                player.Spawn(newSpawn.transform.position, newSpawn.transform.rotation);
+            }
+
+        #endif
+
     }
 
 }

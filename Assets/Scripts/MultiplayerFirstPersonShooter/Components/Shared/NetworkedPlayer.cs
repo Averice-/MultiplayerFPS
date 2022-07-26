@@ -10,7 +10,7 @@ namespace ShardStudios {
         public uint lastSimulatedTick = 0;
         public MovementController movementController;
         public Player player; 
-        public Transform playerHead;
+        public Transform playerModel;
 
 
         public void Start(){
@@ -22,7 +22,7 @@ namespace ShardStudios {
             #if !SERVER
 
                 if( player.isLocalPlayer )
-                    playerHead.localScale = Vector3.zero;
+                    playerModel.gameObject.SetActive(false);
                     
             #endif
         }

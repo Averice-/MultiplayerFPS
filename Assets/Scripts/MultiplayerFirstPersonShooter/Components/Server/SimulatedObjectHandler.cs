@@ -44,6 +44,7 @@ namespace ShardStudios {
                             //movementController.transform.rotation = inputState.rotation;
                             movementController.SetLookAngleFromVector2(inputState.rotation);
                             movementController.AddForce(new Vector3( inputState.input.x, 0f, inputState.input.y).normalized);
+                            movementController.handler.SetMovementFloats(new Vector2( inputState.input.x, inputState.input.y ));
 
                             Player entityOwner = networkedEntity.GetOwner();
                             NetworkManager.CalculateTickDifference(entityOwner.id);

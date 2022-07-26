@@ -122,9 +122,15 @@ namespace ShardStudios {
         public void HolsterItem(EquipmentItem item){
             Transform slot = attachmentSlots[(int)item.slotType];
             if( slot != null ){
-                item.transform.position = slot.position;
-                item.transform.rotation = slot.rotation;
-                item.transform.parent = slot;
+                if( !item.GetOwner().isLocalPlayer ){
+                    item.transform.position = slot.position;
+                    item.transform.rotation = slot.rotation;
+                    item.transform.parent = slot;
+                }else{
+                    #if !SERVER
+                        item.HideViewModel();
+                    #endif
+                }
             }
             if( GetEquippedItem() == item ){
                 item.OnUnequip();
@@ -144,20 +150,32 @@ namespace ShardStudios {
             EquipmentItem equipped = GetEquippedItem();
             EquipmentItem itemToEquip = ItemInSlot(slot);
 
-            if( itemToEquip != null ){
+            if( itemToEquip != null || slot == EquipmentSlot.None ){
 
                 if( equipped != null ){
                     HolsterItem(equipped);
                 }
 
                 if( slot != EquipmentSlot.None ){ // Bare hands.
+                    if( !itemToEquip.GetOwner().isLocalPlayer ){
 
-                    itemToEquip.transform.position = hands.position;
-                    itemToEquip.transform.rotation = hands.rotation;
-                    itemToEquip.transform.parent = hands;
+                        itemToEquip.transform.position = hands.position;
+                        itemToEquip.transform.rotation = hands.rotation;
+                        itemToEquip.transform.parent = hands;
+
+                    }else{
+                        #if !SERVER
+                            itemToEquip.PositionViewModel(); // Temporary, viewmodel will be setup on spawn with hands.
+                        #endif
+                    }
+                    
                     itemToEquip.OnEquip();
                     handler.EquipAnim(itemToEquip.weaponAnimType);
 
+                }else{
+
+                    handler.EquipAnim("none");
+                
                 }
 
                 return true;
