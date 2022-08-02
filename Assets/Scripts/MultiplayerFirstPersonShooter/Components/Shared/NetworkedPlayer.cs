@@ -22,7 +22,7 @@ namespace ShardStudios {
             #if !SERVER
 
                 if( player.isLocalPlayer )
-                    playerModel.gameObject.SetActive(false);
+                    playerModel.gameObject.transform.localScale = Vector3.zero; // We still want it active for those sweet sweet animation events.
                     
             #endif
         }

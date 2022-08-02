@@ -21,6 +21,11 @@ namespace ShardStudios {
         public float roundTime = 0f; // 0 is infinite;
         public int roundLimit = 0; // 0 is infinite;
         public int roundsToWin = 0; // 0 is infinite;
+
+        public bool AllowCrosshairs = true;
+        public bool AllowHitMarkers = true;
+        public bool AllowKillFeed = true;
+        public bool AllowMinimap = true;
         
 
         public static void SetGameMode(GameMode gameMode){
@@ -30,6 +35,7 @@ namespace ShardStudios {
 
         public virtual void Start(){
             Debug.Log($"GameMode[{gameName}] Started.");
+            PlayerHud.CreateKillFeed();
         }
 
         public virtual void Tick(){}

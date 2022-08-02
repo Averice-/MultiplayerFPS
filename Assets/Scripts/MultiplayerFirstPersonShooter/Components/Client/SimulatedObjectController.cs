@@ -280,7 +280,7 @@ namespace ShardStudios {
                     Debug.Log($"Out of sync, interpolating...[{positionDifference}]");
 
                     transform.position = Vector3.Lerp(cachedSimulationState.position, activeServerState.position, interpolationMultiplier);
-                    movementController.velocity = activeServerState.velocity;
+                    movementController.velocity = Vector3.Lerp(cachedSimulationState.velocity, activeServerState.velocity, interpolationMultiplier);
                     //transform.rotation = activeServerState.rotation;
                     movementController.SetLookAngleFromVector2(activeServerState.rotation);
 

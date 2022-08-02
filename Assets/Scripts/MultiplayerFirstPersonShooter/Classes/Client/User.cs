@@ -42,6 +42,7 @@ namespace ShardStudios {
             // hash this password;
             username = name;
             password = pass;
+            PlayerPrefs.SetString("username", name);
             PlayerPrefs.Save();
         }
 

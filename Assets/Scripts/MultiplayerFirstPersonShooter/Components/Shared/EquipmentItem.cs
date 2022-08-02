@@ -36,6 +36,11 @@ namespace ShardStudios {
             [Header("Sounds")]
             [SerializeField] AudioSource audioSource;
             [SerializeField] AudioClip[] audioClips = new AudioClip[5];
+
+            [Space(10)]
+            [Header("Icon Settings")]
+            public Sprite weaponIcon;
+
         #endif
 
         protected bool isShooting = false;
@@ -55,7 +60,7 @@ namespace ShardStudios {
             public void PlaySound(EquipmentSound equipmentSound){
                 int soundIndex = (int)equipmentSound;
                 if( audioClips[soundIndex] != null ){
-                    audioSource.PlayOneShot(audioClips[soundIndex]);
+                    audioSource.PlayOneShot(audioClips[soundIndex], 0.3f);
                 }
             }
 

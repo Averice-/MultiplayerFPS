@@ -51,6 +51,8 @@ namespace ShardStudios {
 
                     }
                 }
+
+                Physics.SyncTransforms();
             }
 
             // Move everyone back to their OG.
@@ -72,6 +74,8 @@ namespace ShardStudios {
 
                 }
 
+                Physics.SyncTransforms();
+                
                 originalStates.Clear();
                 inCompensation = false;
 

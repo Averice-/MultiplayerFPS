@@ -72,25 +72,30 @@ namespace ShardStudios {
             OnHealthZero.RemoveAllListeners();
         }
 
-        [MessageHandler((ushort)MessageID.EntityTakeDamage)]
-        public static void EntityTakeDamage(Message message){
+        #if !SERVER
 
-            NetworkedEntity entity = NetworkedEntity.GetEntityById(message.GetUInt());
-            Player attacker = Player.GetById(message.GetUShort());
-            float amount = message.GetFloat();
+            [MessageHandler((ushort)MessageID.EntityTakeDamage)]
+            public static void EntityTakeDamage(Message message){
 
-            if( entity != null ){
+                NetworkedEntity entity = NetworkedEntity.GetEntityById(message.GetUInt());
+                Player attacker = Player.GetById(message.GetUShort());
+                float amount = message.GetFloat();
 
-                Health entityHealth = entity.GetComponent<Health>();
-                if( entityHealth != null ){
-                    entityHealth.Modify(attacker, amount);
+                if( entity != null ){
+
+                    Health entityHealth = entity.GetComponent<Health>();
+                    if( entityHealth != null ){
+                        entityHealth.Modify(attacker, amount);
+                        if( attacker.isLocalPlayer ){
+                            PlayerHud.HitMarker();
+                        }
+                    }
+
                 }
-
+                
             }
-            
-        }
 
-
+        #endif
 
     }
 

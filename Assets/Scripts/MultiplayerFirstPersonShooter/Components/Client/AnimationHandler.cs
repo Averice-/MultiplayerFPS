@@ -72,14 +72,16 @@ namespace ShardStudios {
         #endif
 
         public void SetMovementFloats(Vector2 floats, bool force = false){
-            Vector2 values = new Vector2(animator.GetFloat("RunningRight"), animator.GetFloat("RunningForward"));
-
             if( force ){
                 animator.SetFloat("RunningRight", floats.x);
                 animator.SetFloat("RunningForward", floats.y);
                 return;
             }
-            Vector2 lerpedValue = Vector2.Lerp(values, floats, movementBlendSpeed * Time.fixedDeltaTime);
+            Vector2 values = new Vector2(animator.GetFloat("RunningRight"), animator.GetFloat("RunningForward"));
+            Vector2 lerpedValue = floats;
+            if( Vector2.Distance(values, floats) > 0.03f ){
+                lerpedValue = Vector2.Lerp(values, floats, 0.1f);
+            }
             animator.SetFloat("RunningForward", lerpedValue.y);
             animator.SetFloat("RunningRight", lerpedValue.x);
         }

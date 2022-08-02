@@ -190,6 +190,10 @@ namespace ShardStudios {
             if( attacker != null )
                 GameMode.Game.PlayerKilledPlayer(this, attacker);
 
+            #if !SERVER
+                PlayerHud.CreateKillFeedMessage(attacker.GetCurrentWeapon().weaponIcon, attacker.name, this.name);
+            #endif
+
             Kill();
         }
 
@@ -237,6 +241,10 @@ namespace ShardStudios {
                     #endif
                 }
             }
+        }
+        
+        public EquipmentItem GetCurrentWeapon(){
+            return equipment.GetEquippedItem();
         }
 
         public void Kill(){
